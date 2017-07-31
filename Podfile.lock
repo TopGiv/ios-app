@@ -36,6 +36,7 @@ PODS:
     - FirebaseAnalytics (~> 4.0)
   - FirebaseInstanceID (2.0.0):
     - FirebaseCore (~> 4.0)
+  - Former (1.5.1)
   - GoogleSignIn (4.0.2):
     - GoogleToolboxForMac/NSDictionary+URLArguments (~> 2.1)
     - GoogleToolboxForMac/NSString+URLArguments (~> 2.1)
@@ -64,6 +65,7 @@ PODS:
   - RSLoadingView (1.1.0)
   - SARate (1.0.3):
     - iRate (~> 1.11.4)
+  - SBPickerSelector (1.2.0)
   - SDWebImage (4.0.0):
     - SDWebImage/Core (= 4.0.0)
   - SDWebImage/Core (4.0.0)
@@ -80,11 +82,13 @@ DEPENDENCIES:
   - Firebase/Auth
   - Firebase/Core
   - Firebase/Database
+  - Former
   - GoogleSignIn
   - JDMailBox
   - MGSwipeTableCell
   - RSLoadingView
   - SARate
+  - SBPickerSelector
   - SDWebImage
   - Stripe/ApplePay
 
@@ -101,6 +105,7 @@ SPEC CHECKSUMS:
   FirebaseCore: 85ad466044c2f013cdb167f85d426d15b128114a
   FirebaseDatabase: d829b3a8c3e2ac7a16773c5df226966b0805dfc2
   FirebaseInstanceID: 9fbf536668f4d3f0880e7438456dabd1376e294b
+  Former: 0b48a812c0d93b092b908d1b0574d0fd95c6b6f9
   GoogleSignIn: d7ad83f13480e1f30453471d00d19b5293ac46af
   GoogleToolboxForMac: 8e329f1b599f2512c6b10676d45736bcc2cbbeb0
   GTMOAuth2: 7fc9c10f5c745f4d9850419ea88889fe3baa6b7d
@@ -110,9 +115,10 @@ SPEC CHECKSUMS:
   MGSwipeTableCell: 616700eb0ffd1c611ba909066cb7fd739790a0a7
   RSLoadingView: b9cdf4970da28e5d4b306784688e640696dd80d3
   SARate: fdefa7a5d455041956b7a187103fd6e2bad85241
+  SBPickerSelector: ca8defc713bf229a35a06100ba2e6e96c424ac6a
   SDWebImage: 76a6348bdc74eb5a55dd08a091ef298e56b55e41
   Stripe: b92298b31cf156fb23a029361b57e2fcb6583d57
 
-PODFILE CHECKSUM: d94a600ec5df6330e73cdddf305cb85cbcba375d
+PODFILE CHECKSUM: 8192d7da594e1499c02ca2d3f0ba6ebe57dc47ad
 
 COCOAPODS: 1.2.0

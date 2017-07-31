@@ -27,6 +27,9 @@ target 'TopGiv' do
   #  pod "EVSlidingTableViewCell"
   pod 'MGSwipeTableCell'
   pod 'JDMailBox'
+  pod 'Former'
+  pod 'SBPickerSelector'
+
 
 
 
