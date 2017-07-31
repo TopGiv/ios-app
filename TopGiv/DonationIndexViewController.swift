@@ -20,6 +20,7 @@ class DonationIndexViewController: UIViewController {
     @IBOutlet weak var bt_10: UIButton!
     @IBOutlet weak var bt_5: UIButton!
     @IBOutlet var uv_Contents: UIView!
+    @IBOutlet weak var uv_Amounts: UIView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,7 +35,6 @@ class DonationIndexViewController: UIViewController {
         
         configPicker()
         interfacelayout()
-        
 
     }
 
@@ -148,6 +148,8 @@ class DonationIndexViewController: UIViewController {
 //        self.title = "DONATE"
         uv_Contents.layer.cornerRadius = 7
         uv_Contents.clipsToBounds = true
+        uv_Amounts.layer.cornerRadius = 7
+        uv_Amounts.clipsToBounds = true
         bt_5.layer.cornerRadius = 20
         bt_5.clipsToBounds = true
         bt_5.layer.borderWidth = 2.0

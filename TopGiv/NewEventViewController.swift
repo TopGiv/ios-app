@@ -20,13 +20,20 @@ class NewEventViewController: UIViewController {
     var eventStore = EKEventStore()
     var calendars: [EKCalendar]?
     
+    var titlePassed = ""
+    var placePassed = ""
+    var datePassed = ""
+    var startTimePassed = ""
+    var endTimePassed = ""
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
         
-        
+        interfacelayout()
     }
     
 
@@ -63,7 +70,11 @@ class NewEventViewController: UIViewController {
  
     }
 
-    
+    func interfacelayout() {
+        lb_Eventtitle.text = titlePassed
+        lb_Eventlocation.text = placePassed
+        lb_Date.text = datePassed
+    }
     
     func addEventToCalendar(title: String, description: String?, startDate: Date, endDate: Date, completion: ((_ success: Bool, _ error: NSError?) -> Void)? = nil) {
         
@@ -79,6 +90,7 @@ class NewEventViewController: UIViewController {
         case EKAuthorizationStatus.authorized:
             // User has access
             print("User has access to calendar")
+            
             
             eventStore.requestAccess(to: .event, completion: { (granted, error) in
                 if (granted) && (error == nil) {

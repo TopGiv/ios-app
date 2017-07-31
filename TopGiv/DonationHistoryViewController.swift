@@ -123,7 +123,6 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
             }
             self.tbl_History.reloadData()
         })
-
         
     }
     
@@ -144,8 +143,6 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
         
         pv_Emailreceipt.datePicker?.datePickerMode = .date
         
-//        bt_Emailreceipts.setTitle("Email", for: .normal)
-
         pv_Emailreceipt.dateDidChange = { date in
             print("selectedDate ", date)
         }
