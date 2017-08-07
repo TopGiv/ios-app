@@ -29,6 +29,7 @@ target 'TopGiv' do
   pod 'JDMailBox'
   pod 'Former'
   pod 'SBPickerSelector'
+  pod 'Stripe'
 
 
 
