@@ -18,6 +18,9 @@ class ContactUsCViewController: UIViewController {
     @IBOutlet var lb_URL: UILabel!
     @IBOutlet var lb_Phone: UILabel!
     @IBOutlet var lb_Email: UILabel!
+    @IBOutlet weak var lb_URL_B: UILabel!
+    @IBOutlet weak var lb_Phone_B: UILabel!
+    @IBOutlet weak var lb_Email_B: UILabel!
     var moreless = true
 
     override func viewDidLoad() {
@@ -43,6 +46,7 @@ class ContactUsCViewController: UIViewController {
     */
     
     func interfacelayout() {
+        //This is for the Interface
         v_ContentsA.layer.cornerRadius = 4
         v_ContentsA.clipsToBounds = true
         v_ContentsB.layer.cornerRadius = 4
@@ -50,20 +54,25 @@ class ContactUsCViewController: UIViewController {
         bt_Rate.layer.cornerRadius = 20
         bt_Rate.clipsToBounds = true
         lb_URL.isUserInteractionEnabled = true
+        lb_URL_B.isUserInteractionEnabled = true
         lb_Phone.isUserInteractionEnabled = true
+        lb_Phone_B.isUserInteractionEnabled = true
         lb_Email.isUserInteractionEnabled = true
+        lb_Email_B.isUserInteractionEnabled = true
         let tap = UITapGestureRecognizer(target: self, action: #selector(self.tapURLFunction))
-        lb_URL.addGestureRecognizer(tap)
+        lb_URL.addGestureRecognizer(tap)        //This is when Web URL is clicked
+        lb_URL_B.addGestureRecognizer(tap)      //This is when Website is clicked
         let ptap = UITapGestureRecognizer(target: self, action: #selector(self.tapPhoneFunction))
-        lb_Phone.addGestureRecognizer(ptap)
+        lb_Phone.addGestureRecognizer(ptap)     //This is when phone number is clicked
+        lb_Phone_B.addGestureRecognizer(ptap)   //This is when Phone is clicked
         let etap = UITapGestureRecognizer(target: self, action: #selector(self.tapEmailFunction))
-        lb_Email.addGestureRecognizer(etap)
-//        v_ContetsA.backgroundColor = .clear
-//        v_ContetsA.layer.borderWidth = 1
-//        v_ContetsA.layer.borderColor = UIColor.gray.cgColor
+        lb_Email.addGestureRecognizer(etap)     //This is when email address is clicked
+        lb_Email_B.addGestureRecognizer(etap)   //This is when Email is clicked
+
     }
     
     @IBAction func onRate(_ sender: Any) {
+        //This is for Rating
         //configure
         SARate.sharedInstance().daysUntilPrompt = 5
         SARate.sharedInstance().usesUntilPrompt = 5
@@ -88,9 +97,11 @@ class ContactUsCViewController: UIViewController {
         SARate.sharedInstance().appstoreRaitingButton = "Rate It Now"
         SARate.sharedInstance().disadvantagesAlertTitle = "Disadvantages"
         SARate.sharedInstance().disadvantagesAlertMessage = "Please specify the deficiencies in the application. We will try to fix it!"
+        
     }
 
     @IBAction func onMoreContents(_ sender: Any) {
+        //This is for "About Richmond"
         if (moreless) {
             v_ContentsA.frame.size.height = v_ContentsA.frame.size.height + 180.0
             bt_More.frame.origin = CGPoint(x: 159, y: 301)
@@ -105,21 +116,27 @@ class ContactUsCViewController: UIViewController {
             lb_ContentsA.frame.size.height = lb_ContentsA.frame.size.height - 180.0
             moreless = true
         }
+        
     }
     
     func tapURLFunction() {
+        
         if let url = NSURL(string: "http://www.richmondballet.com/") {
-            UIApplication.shared.openURL(url as URL)
+            UIApplication.shared.openURL(url as URL)        //This is for visiting the Richmond site
         }
+        
     }
     
     func tapPhoneFunction() {
+        
         if let url = NSURL(string: "tel://8043440906"), UIApplication.shared.canOpenURL(url as URL) {
-            UIApplication.shared.openURL(url as URL)
+            UIApplication.shared.openURL(url as URL)        //This is for calling the Richmond
         }
+        
     }
     
     func tapEmailFunction() {
+        //This is for emailing to the Richmond
         let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
         let vc = storyBoard.instantiateViewController(withIdentifier: "EmailViewController") as! EmailViewController
         self.present(vc, animated: true)
