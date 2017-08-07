@@ -26,12 +26,6 @@ class DonationIndexViewController: UIViewController {
         super.viewDidLoad()
         
         // Do any additional setup after loading the view.
-        self.navigationController?.navigationBar.topItem?.title = "DONATE"
-        
-        self.tabBarController?.tabBar.items?[2].selectedImage = UIImage(named: "donate_icon.png")!.withRenderingMode(.alwaysOriginal)
-        
-        self.tabBarController?.tabBar.items?[2].image = UIImage(named: "donate_icon.png")!.withRenderingMode(.alwaysOriginal)
-
         
         configPicker()
         interfacelayout()
@@ -56,67 +50,90 @@ class DonationIndexViewController: UIViewController {
     
     
     @IBAction func on5(_ sender: Any) {
+        //This is when $5 is selected
         bt_5.backgroundColor = UIColor.white
         bt_5.setTitleColor(UIColor(red: 10/255, green: 97/255, blue: 115/255, alpha: 1), for: .normal)
         transitionViewController(amount: 5)
+        
     }
     
     
     @IBAction func on5Down(_ sender: Any) {
+        //This is for coloring the button when $5 is selected
         bt_5.setTitleColor(UIColor.white, for: .normal)
         bt_5.backgroundColor = UIColor(red: 10/255, green: 97/255, blue: 115/255, alpha: 1)
+        
     }
     
     @IBAction func on10(_ sender: Any) {
+        //This is when $10 is selected
         bt_10.backgroundColor = UIColor.white
         bt_10.setTitleColor(UIColor(red: 10/255, green: 97/255, blue: 115/255, alpha: 1), for: .normal)
         transitionViewController(amount: 10)
+        
     }
     
     @IBAction func on10Down(_ sender: Any) {
+        //This is for coloring the button when $10 is selected
         bt_10.setTitleColor(UIColor.white, for: .normal)
         bt_10.backgroundColor = UIColor(red: 10/255, green: 97/255, blue: 115/255, alpha: 1)
+        
     }
     
     @IBAction func on20(_ sender: Any) {
+        //This is when $20 is selected
         bt_20.backgroundColor = UIColor.white
         bt_20.setTitleColor(UIColor(red: 10/255, green: 97/255, blue: 115/255, alpha: 1), for: .normal)
         transitionViewController(amount: 20)
+        
     }
     
     @IBAction func on20Down(_ sender: Any) {
+        //This is for coloring the button when $20 is selected
         bt_20.backgroundColor = UIColor(red: 10/255, green: 97/255, blue: 115/255, alpha: 1)
         bt_20.setTitleColor(UIColor.white, for: .normal)
+        
     }
     
     
     @IBAction func on50(_ sender: Any) {
+        //This is when $50 is selected
         bt_50.backgroundColor = UIColor.white
         bt_50.setTitleColor(UIColor(red: 10/255, green: 97/255, blue: 115/255, alpha: 1), for: .normal)
         transitionViewController(amount: 50)
+        
     }
     
     @IBAction func on50Down(_ sender: Any) {
+        //This is for coloring the button when $50 is selected
         bt_50.backgroundColor = UIColor(red: 10/255, green: 97/255, blue: 115/255, alpha: 1)
         bt_50.setTitleColor(UIColor.white, for: .normal)
+        
     }
 
     @IBAction func on100(_ sender: Any) {
+        //This is when $100 is selected
         bt_100.backgroundColor = UIColor.white
         bt_100.setTitleColor(UIColor(red: 10/255, green: 97/255, blue: 115/255, alpha: 1), for: .normal)
         transitionViewController(amount: 100)
+        
     }
     
     @IBAction func on100Down(_ sender: Any) {
+        //This is for coloring the button when $100 is selected
         bt_100.backgroundColor = UIColor(red: 10/255, green: 97/255, blue: 115/255, alpha: 1)
         bt_100.setTitleColor(UIColor.white, for: .normal)
+        
     }
     
     @IBAction func onCustom(_ sender: Any) {
+        //This is when custom buttons is clicked
         presentAlert()
+        
     }
     
     func configPicker() {
+        //This is for choosing the form of donation
         pv_Fund.pickerType = .StringPicker
         
         let stringData = ["Minds in Motion","The school of Richmond Ballet","Professional Company and Performances","General Fund"]
@@ -130,15 +147,16 @@ class DonationIndexViewController: UIViewController {
 //        pv_Fund.textColor = UIColor(red: 10/255, green: 97/255, blue: 115/255, alpha: 1)
         
         pv_Fund.stringDidChange = { index in
-            
             print("selectedString ", stringData[index])
             self.donationTitle = stringData[index]
-            
         }
+        
     }
     
     func interfacelayout() {
+        //This is for transition of views
 //        self.navigationController?.isNavigationBarHidden = true
+        self.navigationController?.navigationBar.topItem?.title = "DONATE"
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
         self.navigationController?.navigationBar.isTranslucent = true
@@ -178,6 +196,7 @@ class DonationIndexViewController: UIViewController {
     }
     
     func presentAlert() {
+        //This is for entering custom amount
         let alertController = UIAlertController(title: "", message: "Enter a custom amount that you want to donate", preferredStyle: .alert)
         
         let confirmAction = UIAlertAction(title: "OK", style: .default) { (_) in
@@ -203,15 +222,18 @@ class DonationIndexViewController: UIViewController {
         alertController.addAction(cancelAction)
         
         self.present(alertController, animated: true, completion: nil)
+        
     }
 
     func transitionViewController(amount: Int) {
-        
+        //This is for transition of views
         let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
         let vc = storyBoard.instantiateViewController(withIdentifier: "DonationAmountViewController") as! DonationAmountViewController
-        vc.amountPassed = amount
-        vc.titlePassed = donationTitle
+        vc.amountPassed = amount        //Amount to be donated
+        vc.titlePassed = donationTitle      //Form of donation
 //        self.present(vc, animated: true)
         self.navigationController?.pushViewController(vc, animated: true)
+        
     }
+    
 }

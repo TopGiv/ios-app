@@ -8,8 +8,10 @@
 
 import UIKit
 import PassKit
+import Stripe
 
 extension DonationAmountViewController: PKPaymentAuthorizationViewControllerDelegate {
+    //This is for default Apple pay
     internal func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController, didAuthorizePayment payment: PKPayment, completion: @escaping ((PKPaymentAuthorizationStatus) -> Void)) {
         completion(PKPaymentAuthorizationStatus.success)
     }
@@ -19,10 +21,13 @@ extension DonationAmountViewController: PKPaymentAuthorizationViewControllerDele
     }
 }
 
+
+
+
 class DonationAmountViewController: UIViewController {
     
     let SupportedPaymentNetworks = [PKPaymentNetwork.visa, PKPaymentNetwork.masterCard, PKPaymentNetwork.amex]
-    let ApplePaySwagMerchantID = "merchant.com.YOURDOMAIN.ApplePaySwag" // Fill in your merchant ID here!
+    let ApplePaySwagMerchantID = "merchant.com.topgiv.merchant" // Fill in your merchant ID here!
 
     
     var amountPassed = 0
@@ -40,6 +45,7 @@ class DonationAmountViewController: UIViewController {
 
         // Do any additional setup after loading the view.
         interfacelayout()
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -57,28 +63,58 @@ class DonationAmountViewController: UIViewController {
         // Pass the selected object to the new view controller.
     }
     */
-    
+
+
     
     @IBAction func onCreditCard(_ sender: Any) {
+        //This is when Credit card button is clicked
         transitionViewController()
+        
     }
     
     @IBAction func onApplePay(_ sender: Any) {
+        //////
         let request = PKPaymentRequest()
-        let applePayController = PKPaymentAuthorizationViewController(paymentRequest: request)
-        request.merchantIdentifier = ApplePaySwagMerchantID
-        request.supportedNetworks = SupportedPaymentNetworks
-        request.merchantCapabilities = PKMerchantCapability.capability3DS
-        request.countryCode = "US"
-        request.currencyCode = "USD"
+
+        if PKPaymentAuthorizationViewController.canMakePayments(usingNetworks: SupportedPaymentNetworks) {
+            
+            print("Apple pay is available")
+            
+            request.supportedNetworks = SupportedPaymentNetworks
+            request.countryCode = "US"
+            request.currencyCode = "USD"
+            request.merchantIdentifier = ApplePaySwagMerchantID
+            request.merchantCapabilities = PKMerchantCapability.capability3DS
+            request.requiredShippingAddressFields = PKAddressField.postalAddress
+            
+            
+            let amountDonation = PKPaymentSummaryItem(label: titlePassed, amount: NSDecimalNumber(string: String(amountPassed)))
+            
+            request.paymentSummaryItems = [amountDonation]
+            
+//            let sameday = PKShippingMethod(label: "Same Day", amount: NSDecimalNumber(string: "9.99"))
+//            sameday.detail = "Guranteed Same day"
+//            sameday.identifier = "sameday"
+//            
+//            let twoday = PKShippingMethod(label: "Two Day", amount: NSDecimalNumber(string: "4.99"))
+//            twoday.detail = "2 Day delivery"
+//            twoday.identifier = "2day"
+//            
+//            let shippingMethods : [PKShippingMethod] = [sameday, twoday]
+//            request.shippingMethods = shippingMethods
+            
+            let applePayController = PKPaymentAuthorizationViewController(paymentRequest: request)
+            applePayController.delegate = self
+            present(applePayController, animated: true, completion: nil)
+            
+        }
         
-        applePayController.delegate = self
-        
-        self.present(applePayController, animated: true, completion: nil)
+        //////
     }
     
     
     func interfacelayout() {
+        //This is for the Interface
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
         self.navigationController?.navigationBar.isTranslucent = true
@@ -101,14 +137,14 @@ class DonationAmountViewController: UIViewController {
     }
     
     func transitionViewController() {
-        
+        //This is for transition of views
         let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
         let vc = storyBoard.instantiateViewController(withIdentifier: "CardDonateViewController") as! CardDonateViewController
-        vc.amountPassed = self.amountPassed
-        vc.titlePassed = self.titlePassed
+        vc.amountPassed = self.amountPassed     //The amount of donation a user selected
+        vc.titlePassed = self.titlePassed       //The form of donation a user selected
         //        self.present(vc, animated: true)
         self.navigationController?.pushViewController(vc, animated: true)
+        
     }
-
 
 }

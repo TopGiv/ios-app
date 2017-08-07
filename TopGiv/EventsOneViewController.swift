@@ -39,13 +39,15 @@ class EventsOneViewController: UIViewController {
     }
     
     @IBAction func onAddCalendar(_ sender: Any) {
+        //This is when Add button is clicked
         transitionViewController()
     }
     
 
     @IBAction func onShare(_ sender: Any) {
+        //This is when Share button is clicked
         // text to share
-        let text = "This is some text that I want to share."
+        let text = "\(titlePassed)\n\(placePassed)\n\(datePassed)\n\(contentsPassed)"
         
         // set up activity view controller
         let textToShare = [ text ]
@@ -69,19 +71,19 @@ class EventsOneViewController: UIViewController {
     */
     
     func interfacelayout() {
-/*        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
-        self.navigationController?.navigationBar.shadowImage = UIImage()
-        self.navigationController?.navigationBar.isTranslucent = true
-        self.navigationController?.view.backgroundColor = .clear
-        self.navigationItem.hidesBackButton = true
- */
-        tv_Content.text = contentsPassed
-        lb_Date.text = datePassed
-        lb_Title.text = titlePassed
-        lb_Place.text = placePassed
-        img_Back.image = UIImage.init(named: imagePassed)
+        //This is for the Interface
+//        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+//        self.navigationController?.navigationBar.shadowImage = UIImage()
+//        self.navigationController?.navigationBar.isTranslucent = true
+//        self.navigationController?.view.backgroundColor = .clear
+//        self.navigationItem.hidesBackButton = true
+ 
+        tv_Content.text = contentsPassed        //This is a description of a event
+        lb_Date.text = datePassed       //This is a date of a event
+        lb_Title.text = titlePassed     //This is a title of a event
+        lb_Place.text = placePassed     //This is a place of a event
+        img_Back.image = UIImage.init(named: imagePassed)       //This is a image for a event
         self.navigationController?.navigationBar.isHidden = true
-//        sv_Container.contentSize = CGSize(width:self.view.frame.width, height:self.view.frame.height + 820)
         bt_AddCalendar.layer.cornerRadius = 20
         bt_AddCalendar.clipsToBounds = true
         bt_Share.backgroundColor = .clear
@@ -89,6 +91,7 @@ class EventsOneViewController: UIViewController {
         bt_Share.layer.borderWidth = 1
         bt_Share.layer.borderColor = UIColor(red: 10/255, green: 97/255, blue: 115/255, alpha: 1).cgColor
         
+        //This is for adjusting scrollview to the size of contents
         let fixedWidth = tv_Content.frame.size.width
         tv_Content.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
         let newSize = tv_Content.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
@@ -98,19 +101,23 @@ class EventsOneViewController: UIViewController {
         let shareY = newFrame.height + tv_Content.frame.origin.y + 25
         bt_Share.center.y = shareY
         sv_Container.contentSize = CGSize(width: self.view.frame.width, height: tv_Content.frame.origin.y + newFrame.height + 64)
+        
     }
     
     func transitionViewController() {
-        
+        //This is for transition of views
         let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-        let vc = storyBoard.instantiateViewController(withIdentifier: "NewEventViewController") as! NewEventViewController
+//        let vc = storyBoard.instantiateViewController(withIdentifier: "NewEventViewController") as! NewEventViewController
+        let vc = storyBoard.instantiateViewController(withIdentifier: "AddEventViewController") as! AddEventViewController
         vc.titlePassed = titlePassed
         vc.placePassed = placePassed
         self.present(vc, animated: true)
+        
     }
     @IBAction func onBack(_ sender: Any) {
-//        self.dismiss(animated: true, completion: nil)
+        
         self.navigationController?.popViewController(animated: true)
+        
     }
 
 }
