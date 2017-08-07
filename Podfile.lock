@@ -69,6 +69,8 @@ PODS:
   - SDWebImage (4.0.0):
     - SDWebImage/Core (= 4.0.0)
   - SDWebImage/Core (4.0.0)
+  - Stripe (7.0.1):
+    - Stripe/Core (= 7.0.1)
   - Stripe/ApplePay (7.0.1):
     - Stripe/Core
   - Stripe/Core (7.0.1)
@@ -90,6 +92,7 @@ DEPENDENCIES:
   - SARate
   - SBPickerSelector
   - SDWebImage
+  - Stripe
   - Stripe/ApplePay
 
 SPEC CHECKSUMS:
@@ -119,6 +122,6 @@ SPEC CHECKSUMS:
   SDWebImage: 76a6348bdc74eb5a55dd08a091ef298e56b55e41
   Stripe: b92298b31cf156fb23a029361b57e2fcb6583d57
 
-PODFILE CHECKSUM: 8192d7da594e1499c02ca2d3f0ba6ebe57dc47ad
+PODFILE CHECKSUM: a7fd2e7ac794c9661881a195ce5bd4845b4e34b7
 
 COCOAPODS: 1.2.0
