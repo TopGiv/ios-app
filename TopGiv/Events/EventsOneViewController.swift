@@ -39,8 +39,10 @@ class EventsOneViewController: UIViewController {
     }
     
     @IBAction func onAddCalendar(_ sender: Any) {
+        
         //This is when Add button is clicked
         transitionViewController()
+        
     }
     
 
@@ -51,7 +53,9 @@ class EventsOneViewController: UIViewController {
         
         // set up activity view controller
         let textToShare = [ text ]
+        
         let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
+        
         activityViewController.popoverPresentationController?.sourceView = self.view // so that iPads won't crash
         
         // exclude some activity types from the list (optional)
@@ -59,7 +63,9 @@ class EventsOneViewController: UIViewController {
         
         // present the view controller
         self.present(activityViewController, animated: true, completion: nil)
+        
     }
+    
     /*
     // MARK: - Navigation
 
@@ -73,33 +79,56 @@ class EventsOneViewController: UIViewController {
     func interfacelayout() {
         //This is for the Interface
 //        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        
 //        self.navigationController?.navigationBar.shadowImage = UIImage()
+        
 //        self.navigationController?.navigationBar.isTranslucent = true
+        
 //        self.navigationController?.view.backgroundColor = .clear
+        
 //        self.navigationItem.hidesBackButton = true
  
         tv_Content.text = contentsPassed        //This is a description of a event
+        
         lb_Date.text = datePassed       //This is a date of a event
+        
         lb_Title.text = titlePassed     //This is a title of a event
+        
         lb_Place.text = placePassed     //This is a place of a event
+        
         img_Back.image = UIImage.init(named: imagePassed)       //This is a image for a event
+        
         self.navigationController?.navigationBar.isHidden = true
+        
         bt_AddCalendar.layer.cornerRadius = 20
+        
         bt_AddCalendar.clipsToBounds = true
+        
         bt_Share.backgroundColor = .clear
+        
         bt_Share.layer.cornerRadius = 20
+        
         bt_Share.layer.borderWidth = 1
+        
         bt_Share.layer.borderColor = UIColor(red: 10/255, green: 97/255, blue: 115/255, alpha: 1).cgColor
         
         //This is for adjusting scrollview to the size of contents
         let fixedWidth = tv_Content.frame.size.width
+        
         tv_Content.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+        
         let newSize = tv_Content.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+        
         var newFrame = tv_Content.frame
+        
         newFrame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
+        
         tv_Content.frame = newFrame;
+        
         let shareY = newFrame.height + tv_Content.frame.origin.y + 25
+        
         bt_Share.center.y = shareY
+        
         sv_Container.contentSize = CGSize(width: self.view.frame.width, height: tv_Content.frame.origin.y + newFrame.height + 64)
         
     }
@@ -107,10 +136,14 @@ class EventsOneViewController: UIViewController {
     func transitionViewController() {
         //This is for transition of views
         let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-//        let vc = storyBoard.instantiateViewController(withIdentifier: "NewEventViewController") as! NewEventViewController
-        let vc = storyBoard.instantiateViewController(withIdentifier: "AddEventViewController") as! AddEventViewController
+        
+        let vc = storyBoard.instantiateViewController(withIdentifier: "AddEventViewController")
+            as! AddEventViewController
+        
         vc.titlePassed = titlePassed
+        
         vc.placePassed = placePassed
+        
         self.present(vc, animated: true)
         
     }
