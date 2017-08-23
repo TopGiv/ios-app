@@ -22,7 +22,6 @@ target 'TopGiv' do
   #  pod 'RLDTableViewSwift', '~> 0.2.1'
   #  pod 'LBTAComponents'
   #  pod 'pop', '~> 1.0.6'
-  pod 'RSLoadingView'
   #  pod 'SwipeCellKit'
   #  pod "EVSlidingTableViewCell"
   pod 'MGSwipeTableCell'
@@ -30,9 +29,9 @@ target 'TopGiv' do
   pod 'Former'
   pod 'SBPickerSelector'
   pod 'Stripe'
-
-
-
+  pod 'AFNetworking'
+  pod 'SwiftyJSON'
+  pod 'Alamofire'
 
   target 'TopGivTests' do
     inherit! :search_paths
