@@ -17,12 +17,16 @@ class EmailViewController: UIViewController {
         // Do any additional setup after loading the view.
 
         let jdmailbox = JDMailBoxComposeVC(rootVC: self)
+        
         jdmailbox.setSignature(signature: "RichmondBallet")
+        
         jdmailbox.setToRecipients(["smckinney@richmondballet.com"])
+        
         if(JDMailBoxComposeVC.canSendMail())   /* importnat */
         {
             self.present(jdmailbox, animated: true, completion: nil)
         }
+        
     }
 
     override func didReceiveMemoryWarning() {
