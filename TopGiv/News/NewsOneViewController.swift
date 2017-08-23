@@ -39,11 +39,13 @@ class NewsOneViewController: UIViewController {
     @IBAction func onShare(_ sender: Any) {
         
         // text to share
-        let text = "This is some text that I want to share."
+        let text = "\(titlePassed)\n\(datePassed)\n\(contentsPassed)"
         
         // set up activity view controller
         let textToShare = [ text ]
+        
         let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
+        
         activityViewController.popoverPresentationController?.sourceView = self.view // so that iPads won't crash
         
         // exclude some activity types from the list (optional)
@@ -65,29 +67,43 @@ class NewsOneViewController: UIViewController {
     */
     
     func interfacelayout() {
-//        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
-//        self.navigationController?.navigationBar.shadowImage = UIImage()
-//        self.navigationController?.navigationBar.isTranslucent = true
-//        self.navigationController?.view.backgroundColor = .clear
-//        self.navigationItem.hidesBackButton = true
+        //This is for Interface
+        
         tv_News.text = contentsPassed
+        
         lb_Date.text = datePassed
+        
         lb_Title.text = titlePassed
+        
         img_Back.image = UIImage.init(named: imagePassed)
+        
         self.navigationController?.navigationBar.isHidden = true
+        
         bt_Share.backgroundColor = .clear
+        
         bt_Share.layer.cornerRadius = 20
+        
         bt_Share.layer.borderWidth = 1
+        
         bt_Share.layer.borderColor = UIColor(red: 10/255, green: 97/255, blue: 115/255, alpha: 1).cgColor
         
+        //This is for adjusting height of scroll view
         let fixedWidth = tv_News.frame.size.width
+        
         tv_News.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+        
         let newSize = tv_News.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+        
         var newFrame = tv_News.frame
+        
         newFrame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
+        
         tv_News.frame = newFrame;
+        
         let shareY = newFrame.height + tv_News.frame.origin.y + 25
+        
         bt_Share.center.y = shareY
+        
         sv_Container.contentSize = CGSize(width: self.view.frame.width, height: tv_News.frame.origin.y + newFrame.height + 64)
         
     }
