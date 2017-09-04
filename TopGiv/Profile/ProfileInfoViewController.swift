@@ -17,6 +17,7 @@ class ProfileInfoViewController: UIViewController {
     @IBOutlet weak var bt_Sharelink: UIButton!
     @IBOutlet var lb_Email: UILabel!
     @IBOutlet var lb_Fullname: UILabel!
+    @IBOutlet weak var lb_Link: UILabel!
     
     
     override func viewDidLoad() {
@@ -36,11 +37,13 @@ class ProfileInfoViewController: UIViewController {
     @IBAction func onShare(_ sender: Any) {
         
         // text to share
-        let text = "This is some text that I want to share."
+        let text = lb_Link.text
         
         // set up activity view controller
         let textToShare = [ text ]
+        
         let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
+        
         activityViewController.popoverPresentationController?.sourceView = self.view // so that iPads won't crash
         
         // exclude some activity types from the list (optional)
@@ -62,12 +65,17 @@ class ProfileInfoViewController: UIViewController {
     */
     
     func interfacelayout() {
+        //This is for Interface
         
         self.title = "Profile"
+        
         bt_Sharelink.layer.cornerRadius = 20
+        
         bt_Sharelink.clipsToBounds = true
-        lb_Email.text = emailPassed
-        lb_Fullname.text = fullnamePassed
+        
+        lb_Email.text = emailPassed     //To show email address passed from previous view controller
+        
+        lb_Fullname.text = fullnamePassed       //To show name passed from previous view controller
         
     }
 
@@ -88,16 +96,24 @@ class ProfileInfoViewController: UIViewController {
     func transitionViewController(target: String, style: Bool) {
         
         let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        
 //        let vc = storyBoard.instantiateViewController(withIdentifier: target)
 
         if style {
+            
             let vc = storyBoard.instantiateViewController(withIdentifier: "DonationHistoryViewController") as! DonationHistoryViewController
+            
             vc.emailPassed = self.emailPassed
+            
             self.navigationController?.pushViewController(vc, animated: true)
+            
         }
         else {
+            
             let vc = storyBoard.instantiateViewController(withIdentifier: target)
+            
             self.present(vc, animated: true)
+            
         }
         
     }
