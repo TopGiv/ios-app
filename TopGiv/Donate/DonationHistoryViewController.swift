@@ -12,13 +12,15 @@ import FirebaseAuth
 import MGSwipeTableCell
 import SBPickerSelector
 import MessageUI
+import Alamofire
 
 class DonationHistoryViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, SBPickerSelectorDelegate, MFMailComposeViewControllerDelegate {
 
     @IBOutlet weak var ai_Loading: UIActivityIndicatorView!
     @IBOutlet weak var bt_Emailreceipts: UIButton!
     @IBOutlet var tbl_History: UITableView!
-    var ref:DatabaseReference!
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+//    var ref:DatabaseReference!
     var userDict:[NSDictionary] = []
     var emailPassed = ""
     var dateSelected = ""
@@ -84,16 +86,17 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
                 cell = tbl_History.dequeueReusableCell(withIdentifier: identifier) as? HistoryTableViewCell
                 
             }
-            
-            cell.lb_Category.text = object["category"]! as? String
-            
-            cell.lb_Date.text = object["date"]! as? String
         
-            cell.lb_Amount.text = object["amount"]! as? String
+        cell.lb_Category.text = object["category"]! as? String
         
-            cell.backgroundColor = UIColor.clear
-
-            return cell
+        cell.lb_Date.text = unixtoDate(timeResult: Double((object["date"]! as? String)!)!)
+        
+        
+        cell.lb_Amount.text = object["amount"]! as? String
+        
+        cell.backgroundColor = UIColor.clear
+        
+        return cell
         
     }
 
@@ -113,24 +116,63 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
         
         ai_Loading.startAnimating()     //Start spinning
         
-        //To fetch data of donation history from Firebase
-        ref = Database.database().reference()
-        
-        ref.child("donation_history").queryOrdered(byChild: "email").queryEqual(toValue: Auth.auth().currentUser?.email).observeSingleEvent(of: .value, with: { snapshot in
+        //To fetch data of donation history from backendr
+        Alamofire.request("http://popnus.com/index.php/mobile/history?uid=\(self.appDelegate.userID)").responseJSON { response in
             
-            for child in snapshot.children {
+            print("Request: \(String(describing: response.request))")   // original url request
+            print("Response: \(String(describing: response.response))") // http url response
+            print("Result: \(response.result)")                         // response serialization result
+            
+            
+            if let json = response.result.value as? Dictionary<String, AnyObject> {
                 
-                let dataCategory = ((child as! DataSnapshot).value as! NSDictionary)["title"] ?? ""
+                print("&&&\(json)")
                 
-                let dataDate = ((child as! DataSnapshot).value as! NSDictionary)["date"] ?? ""
-                
-                let dataAmount = ((child as! DataSnapshot).value as! NSDictionary)["amount"] ?? ""
-                
-                let data: NSDictionary = ["category": dataCategory as! String, "date": dataDate as! String, "amount": "$\(dataAmount)"]
-                
-                self.userDict.append(data)
+                if let data = json["data"] as? Array<AnyObject> {
+                    
+                    var dataCell: NSDictionary = [:]
+                    
+                    for myEntry in data {
+                        
+                        print("&&&\(myEntry)")
+                        
+                        if let dataCategory = myEntry["kind"] as? String {
+                            
+                            if let dataAmount = myEntry["amount"] as? String {
+                                
+                                if let dataDate = myEntry["date"] as? String {
+                                    
+                                    dataCell = ["category": dataCategory , "date": dataDate , "amount": "\(dataAmount)$"]
+                                        
+                                }
+                            }
+                        }
+                        
+                        self.userDict.append(dataCell)
+                        
+                    }
+                    
+                }
                 
             }
+        //To fetch data of donation history from Firebase
+//        ref = Database.database().reference()
+//        
+//        ref.child("donation_history").queryOrdered(byChild: "email").queryEqual(toValue: Auth.auth().currentUser?.email).observeSingleEvent(of: .value, with: { snapshot in
+//            
+//            for child in snapshot.children {
+//                
+//                let dataCategory = ((child as! DataSnapshot).value as! NSDictionary)["title"] ?? ""
+//                
+//                let dataDate = ((child as! DataSnapshot).value as! NSDictionary)["date"] ?? ""
+//                
+//                let dataAmount = ((child as! DataSnapshot).value as! NSDictionary)["amount"] ?? ""
+//                
+//                let data: NSDictionary = ["category": dataCategory as! String, "date": dataDate as! String, "amount": "$\(dataAmount)"]
+//                
+//                self.userDict.append(data)
+//                
+            
             
             print(self.userDict)
             
@@ -139,7 +181,9 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
             self.ai_Loading.isHidden = true     //To hide the activity indicator
             
             self.tbl_History.reloadData()
-        })
+            
+        }
+//        })
         
     }
     
@@ -163,6 +207,10 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
                 
                 print(dateDiv[2])
                 
+            }
+            
+            else {
+                print(dateDiv)
             }
 
         }
@@ -298,5 +346,13 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
         // Dismiss the mail compose view controller.
         controller.dismiss(animated: true, completion: nil)
         
+    }
+    
+    func unixtoDate(timeResult: Double) -> String {
+        let date = NSDate(timeIntervalSince1970: timeResult)
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeStyle = DateFormatter.Style.medium //Set time style
+        dateFormatter.dateStyle = DateFormatter.Style.medium //Set date style
+        return dateFormatter.string(from: date as Date)
     }
 }

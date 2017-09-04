@@ -10,11 +10,14 @@ import UIKit
 import FirebaseDatabase
 import Stripe
 import AFNetworking
+import Alamofire
 
 class CardDonateViewController: UIViewController {
     
     var titlePassed = ""
     var amountPassed = 0
+    var URL: String!
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
 
     @IBOutlet var tf_CardA: UITextField!
@@ -62,7 +65,8 @@ class CardDonateViewController: UIViewController {
         
         dateFormatter.timeStyle = DateFormatter.Style.none
         
-        let today = dateFormatter.string(from: Date())
+//        let today = dateFormatter.string(from: Date())
+        let today = String(Int(NSDate().timeIntervalSince1970))
         
         //This is validation for all the textfields
         if self.tf_CardA.text == "" || self.tf_CardB.text == "" || self.tf_CardC.text == "" || self.tf_CardD.text == "" || self.tf_HolderName.text == "" || self.tf_Date.text == "" || self.tf_Email.text == ""{
@@ -95,25 +99,45 @@ class CardDonateViewController: UIViewController {
                 
             }
             
-            self.ref = Database.database().reference()      //This is for setting Firebase database
+//            self.ref = Database.database().reference()      //This is for setting Firebase database
+//            
+//            let newDonationRef = self.ref!
+//                .child("donation_history")
+//                .childByAutoId()
+//            
+//            let newDonationId = newDonationRef.key
+//            
+//            let newDonationData = [
+//                "donation_id": newDonationId,
+//                "title": self.titlePassed,
+//                "date": today,
+//                "amount": self.amountPassed,
+//                "email": self.tf_Email.text!,
+//                "holdername": self.tf_HolderName.text!,
+//                "via": "Card"
+//                ] as [String : Any]
             
-            let newDonationRef = self.ref!
-                .child("donation_history")
-                .childByAutoId()
+            let donationCategory = titlePassed.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)!
             
-            let newDonationId = newDonationRef.key
+            URL = "http://popnus.com/index.php/mobile/addHistory?mail=\(String(describing: tf_Email.text!))&amount=\(amountPassed)&date=\(today)&kind=\(donationCategory)&token="
             
-            let newDonationData = [
-                "donation_id": newDonationId,
-                "title": self.titlePassed,
-                "date": today,
-                "amount": self.amountPassed,
-                "email": self.tf_Email.text!,
-                "holdername": self.tf_HolderName.text!,
-                "via": "Card"
-                ] as [String : Any]
+//            Alamofire.request("http://popnus.com/index.php/mobile/addHistory?mail=\(String(describing: tf_Email.text!))&amount=\(amountPassed)&date=\(today)&kind=\(donationCategory)").responseJSON { response in
+//                
+//                print("Request: \(String(describing: response.request))")   // original url request
+//                print("Response: \(String(describing: response.response))") // http url response
+//                print("Result: \(response.result)")                         // response serialization result
+//                
+//                if let json = response.result.value as? [String: Any] {
+//                    self.appDelegate.userID = json["uid"] as! String
+//                    print("JSON: \(self.appDelegate.userID)") // serialized json response
+//                }
+//                
+//                if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
+//                    print("Data: \(utf8Text)") // original server data as UTF8 string
+//                }
+//            }
+
             
-            print(newDonationData)
             
             //Stripe payment processing
             // Initiate the card
@@ -128,16 +152,18 @@ class CardDonateViewController: UIViewController {
             
             let expYear = UInt((expirationDate?[1])!)
 
+            let number = "\(self.tf_CardA.text!)\(self.tf_CardB.text!)\(self.tf_CardC.text!)\(self.tf_CardD.text!)"       //Card number
+
             //Stripe card info
-            stripCard.number = "\(self.tf_CardA)\(self.tf_CardB)\(self.tf_CardC)\(self.tf_CardD)"       //Card number
+            stripCard.number = number
             
-            stripCard.cvc = self.tf_CVC.text        //CVC
+            stripCard.cvc = self.tf_CVC.text!        //CVC
             
             stripCard.expMonth = UInt(expMonth)
             
             stripCard.expYear = expYear!
             
-            stripCardParams.number = "\(self.tf_CardA)\(self.tf_CardB)\(self.tf_CardC)\(self.tf_CardD)"
+            stripCardParams.number = "\(self.tf_CardA.text!)\(self.tf_CardB.text!)\(self.tf_CardC.text!)\(self.tf_CardD.text!)"
             
             stripCardParams.cvc = tf_CVC.text
             
@@ -150,16 +176,18 @@ class CardDonateViewController: UIViewController {
                 STPAPIClient.shared().createToken(withCard: stripCard, completion: { (token, error) -> Void in
                     
                     if error != nil {
-                        self.handleError(error: error! as NSError)
+                        print(error?.localizedDescription)
                         return
                     }
+                    
+                    print("This is the TOKEN: \(token)")
                     
                     self.postStripeToken(token: token!)
                 })
                
             }
             
-            newDonationRef.setValue(newDonationData)        //This is for storing data to Firebase database
+//            newDonationRef.setValue(newDonationData)        //This is for storing data to Firebase database
             
             displayThanksMessage(messageToDisplay: "Your donation is complete\nWe are so grateful to you for your gift - thanks!")
         
@@ -371,33 +399,23 @@ class CardDonateViewController: UIViewController {
     
     func postStripeToken(token: STPToken) {
         
-        let URL = "http://localhost/donate/payment.php"
-        let params = ["stripeToken": token.tokenId,
-                      "amount": self.amountPassed,
-                      "currency": "usd",
-                      "description": self.titlePassed] as [String : Any]
-        
-        let manager = AFHTTPSessionManager()
-        manager.post(URL, parameters: params, success: { (operation, responseObject) -> Void in
+        let ID = token.tokenId
+
+        Alamofire.request("\(self.URL!)\(ID)").responseJSON { response in
             
-            if let response = responseObject as? [String: String] {
-             
-                //This is for displaying alert messages
-                let alertController = UIAlertController(title: response["status"], message: response["message"], preferredStyle: .alert)
-                
-                let OKAction = UIAlertAction(title: "OK", style: .default) { (action:UIAlertAction!) in
-                    
-                    // Code in this block will trigger when OK button tapped.
-                    print("Ok button tapped");
-                    
-                }
-                
-                alertController.addAction(OKAction)
+            print("Request: \(String(describing: response.request))")   // original url request
+            print("Response: \(String(describing: response.response))") // http url response
+            print("Result: \(response.result)")                         // response serialization result
+            
+            if let json = response.result.value as? [String: Any] {
+                print("JSON: \(json)") // serialized json response
             }
             
-        }) { (operation, error) -> Void in
-//            self.handleError(error!)
+            if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
+                print("Data: \(utf8Text)") // original server data as UTF8 string
+            }
         }
+        
     }
-    
+  
 }

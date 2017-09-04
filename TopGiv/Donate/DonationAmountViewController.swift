@@ -102,14 +102,19 @@ class DonationAmountViewController: UIViewController {
             request.paymentSummaryItems = [amountDonation]
             
 //            let sameday = PKShippingMethod(label: "Same Day", amount: NSDecimalNumber(string: "9.99"))
+            
 //            sameday.detail = "Guranteed Same day"
+            
 //            sameday.identifier = "sameday"
-//            
+
 //            let twoday = PKShippingMethod(label: "Two Day", amount: NSDecimalNumber(string: "4.99"))
+            
 //            twoday.detail = "2 Day delivery"
+            
 //            twoday.identifier = "2day"
-//            
+            
 //            let shippingMethods : [PKShippingMethod] = [sameday, twoday]
+            
 //            request.shippingMethods = shippingMethods
             
             let applePayController = PKPaymentAuthorizationViewController(paymentRequest: request)
