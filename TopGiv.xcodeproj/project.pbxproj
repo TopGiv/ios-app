@@ -106,6 +106,8 @@
 		C346C2701F3BE77700B8DFE2 /* CreditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C346C26F1F3BE77700B8DFE2 /* CreditViewController.swift */; };
 		C346C2721F3BEA4100B8DFE2 /* Stripe.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C346C2711F3BEA4100B8DFE2 /* Stripe.framework */; };
 		C346C29C1F45F3DA00B8DFE2 /* delete.png in Resources */ = {isa = PBXBuildFile; fileRef = C346C29B1F45F3DA00B8DFE2 /* delete.png */; };
+		C3C0E8A91F54F92400B6C9E3 /* EventGViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3C0E8A81F54F92400B6C9E3 /* EventGViewController.swift */; };
+		C3C0E8AD1F57747300B6C9E3 /* NewsEViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3C0E8AC1F57747300B6C9E3 /* NewsEViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -238,6 +240,8 @@
 		C346C26F1F3BE77700B8DFE2 /* CreditViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreditViewController.swift; sourceTree = "<group>"; };
 		C346C2711F3BEA4100B8DFE2 /* Stripe.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Stripe.framework; path = "../../../Library/Developer/Xcode/DerivedData/TopGiv-forcpfkjvuyqrbdftrmfwbqchqlp/Build/Products/Debug-iphonesimulator/Stripe/Stripe.framework"; sourceTree = "<group>"; };
 		C346C29B1F45F3DA00B8DFE2 /* delete.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = delete.png; sourceTree = "<group>"; };
+		C3C0E8A81F54F92400B6C9E3 /* EventGViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventGViewController.swift; sourceTree = "<group>"; };
+		C3C0E8AC1F57747300B6C9E3 /* NewsEViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewsEViewController.swift; sourceTree = "<group>"; };
 		CA42EBC2E8CC67F9D301B757 /* Pods_TopGivUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TopGivUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DA3B00AA1BFE26AD6AFD7AB6 /* Pods-TopGiv.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TopGiv.release.xcconfig"; path = "Pods/Target Support Files/Pods-TopGiv/Pods-TopGiv.release.xcconfig"; sourceTree = "<group>"; };
 		EBBB5D5830D3D3E1E2726849 /* Pods-TopGivTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TopGivTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-TopGivTests/Pods-TopGivTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -479,6 +483,7 @@
 				64F5FA881EE324F80099D5B3 /* Cells */,
 				64D3849F1EFB0CA6002A1244 /* NewsOneViewController.swift */,
 				6424D5701EF6CF0E00DE8972 /* NewsCViewController.swift */,
+				C3C0E8AC1F57747300B6C9E3 /* NewsEViewController.swift */,
 			);
 			name = News;
 			sourceTree = "<group>";
@@ -513,6 +518,7 @@
 				64F5FAA51EE593A60099D5B3 /* EventsOneViewController.swift */,
 				3841D5011F2825EE0034C107 /* AddEventViewController.swift */,
 				38A1BF921F31665200B6400D /* EventFViewController.swift */,
+				C3C0E8A81F54F92400B6C9E3 /* EventGViewController.swift */,
 			);
 			name = Event;
 			sourceTree = "<group>";
@@ -639,6 +645,9 @@
 								enabled = 1;
 							};
 							com.apple.Keychain = {
+								enabled = 1;
+							};
+							com.apple.SafariKeychain = {
 								enabled = 1;
 							};
 						};
@@ -969,6 +978,7 @@
 				64F5FAA61EE593A60099D5B3 /* EventsOneViewController.swift in Sources */,
 				642888631EF8C23B002CC191 /* ContactUsCViewController.swift in Sources */,
 				643251951EDFAD4900AF31DF /* ViewController.swift in Sources */,
+				C3C0E8A91F54F92400B6C9E3 /* EventGViewController.swift in Sources */,
 				64107B1C1F0ACBC7009AE171 /* EventDTableViewCell.swift in Sources */,
 				6424D5741EF6DA8A00DE8972 /* NewsDTableViewCell.swift in Sources */,
 				C346C2701F3BE77700B8DFE2 /* CreditViewController.swift in Sources */,
@@ -976,6 +986,7 @@
 				643251931EDFAD4900AF31DF /* AppDelegate.swift in Sources */,
 				6432521C1EE1C4F600AF31DF /* PaymentSettingsViewController.swift in Sources */,
 				64F5FA8B1EE325200099D5B3 /* NewsTableViewCell.swift in Sources */,
+				C3C0E8AD1F57747300B6C9E3 /* NewsEViewController.swift in Sources */,
 				643251E21EE07A1800AF31DF /* ProfileIndexViewController.swift in Sources */,
 				64107B2B1F0FBD7C009AE171 /* EmailViewController.swift in Sources */,
 				6424D5711EF6CF0E00DE8972 /* NewsCViewController.swift in Sources */,
