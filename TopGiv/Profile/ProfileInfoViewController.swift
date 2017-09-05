@@ -97,8 +97,6 @@ class ProfileInfoViewController: UIViewController {
         
         let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
         
-//        let vc = storyBoard.instantiateViewController(withIdentifier: target)
-
         if style {
             
             let vc = storyBoard.instantiateViewController(withIdentifier: "DonationHistoryViewController") as! DonationHistoryViewController

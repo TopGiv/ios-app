@@ -20,9 +20,7 @@ class ProfileIndexViewController: UIViewController, GIDSignInUIDelegate {
     @IBOutlet weak var bt_Signinemail: UIButton!
     @IBOutlet weak var bt_Signingplus: UIButton!
     @IBOutlet weak var bt_Signinfb: UIButton!
-    
-    var ref: DatabaseReference!
-    
+        
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     override func viewDidLoad() {
@@ -88,14 +86,6 @@ class ProfileIndexViewController: UIViewController, GIDSignInUIDelegate {
         
         if (GIDSignIn.sharedInstance().hasAuthInKeychain()){
             
-//            self.ref = Database.database().reference()
-            
-                // Otherwise, add this user to the database.
-//                let userDict = [
-//                    "user_id": GIDSignIn.sharedInstance().currentUser.userID ,
-//                    "email": GIDSignIn.sharedInstance().currentUser.profile.email
-//                    ] as [String: Any]
-            
             let loggedEmail: String
             
             loggedEmail = GIDSignIn.sharedInstance().currentUser.profile.email
@@ -115,11 +105,6 @@ class ProfileIndexViewController: UIViewController, GIDSignInUIDelegate {
                 }
                 
             }
-            
-            
-//            print(userDict)
-            
-//                self.ref.child("users").child(GIDSignIn.sharedInstance().currentUser.userID).setValue(userDict)
             
             transitionViewController(email: GIDSignIn.sharedInstance().currentUser.profile.email, fullname: GIDSignIn.sharedInstance().currentUser.profile.name)
             
@@ -188,6 +173,7 @@ class ProfileIndexViewController: UIViewController, GIDSignInUIDelegate {
     
     func transitionViewController(email: String, fullname: String) {
         //This is for transition of views
+        
         let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
         
         let vc = storyBoard.instantiateViewController(withIdentifier: "ProfileInfoViewController") as! ProfileInfoViewController
@@ -196,55 +182,47 @@ class ProfileIndexViewController: UIViewController, GIDSignInUIDelegate {
         
         vc.fullnamePassed = fullname
         
-//        self.present(vc, animated: true)
-        
         self.navigationController?.pushViewController(vc, animated: true)
         
     }
     
     func saveUserInfo(_ user: User) {       //This is for storing data when a user signs up
         
-//        self.ref = Database.database().reference()
-        
-//        ref.child("users").child(user.uid).observeSingleEvent(of: .value, with: { (snapshot) in
-            
-            // Don't do anything if the user already exists in the database.
-//            guard !snapshot.exists() else {
-//                
-//                return
-//                
-//            }
-        
-            // Otherwise, add this user to the database.
-            let userDict = [
-                "user_id": user.uid ,
-                "email": user.email ?? ""
-                ] as [String: Any]
+        // Otherwise, add this user to the database.
+        let userDict = [
+            "user_id": user.uid ,
+            "email": user.email ?? ""
+            ] as [String: Any]
         
         let loggedEmail: String
         
         loggedEmail = user.email!
         
         Alamofire.request("http://popnus.com/index.php/mobile/signUp?mail=\(loggedEmail)").responseJSON { response in
+            
             print("Request: \(String(describing: response.request))")   // original url request
+            
             print("Response: \(String(describing: response.response))") // http url response
+            
             print("Result: \(response.result)")                         // response serialization result
             
             if let json = response.result.value as? [String: Any] {
+                
                 self.appDelegate.userID = json["uid"] as! String
+                
                 print("JSON: \(self.appDelegate.userID)") // serialized json response
+                
             }
             
             if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
+                
                 print("Data: \(utf8Text)") // original server data as UTF8 string
+                
             }
             
         }
     
         print(userDict)
-    
-//            self.ref.child("users").child(user.uid).setValue(userDict)
-//        })
         
     }
     
@@ -264,6 +242,7 @@ class ProfileIndexViewController: UIViewController, GIDSignInUIDelegate {
                 self.loginEmail(emailIn: field.text!)
                 
              }
+            
         }
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (_) in }
@@ -311,23 +290,12 @@ class ProfileIndexViewController: UIViewController, GIDSignInUIDelegate {
             
             self.present(alertController, animated: true, completion: nil)
         }
+            
         else {
             
             Auth.auth().createUser(withEmail: emailIn, password: "123456") { (user:User?, error:Error?) in
+                
                 if error == nil {
-                    
-//                    self.ref = Database.database().reference()
-//                    
-//                    let newUserRef = self.ref!
-//                        .child("users").child((user!.uid))
-                    
-//                    let newUserData = [
-//                        "user_id": user!.uid,
-//                        "email": emailIn,
-//                        ] as [String : Any]
-                    
-//                    newUserRef.setValue(newUserData)
-                    
                     
                     let when = DispatchTime.now() + 1
                     DispatchQueue.main.asyncAfter(deadline: when) {
@@ -350,6 +318,7 @@ class ProfileIndexViewController: UIViewController, GIDSignInUIDelegate {
                     let nsError = (error! as NSError)
                     
                     if nsError.code == 17007 {
+                        
                         Auth.auth().currentUser?.sendEmailVerification(completion: { (error) in
                             
                             let post2 = UIAlertController(title: "Please check your email", message: "Verification sent!\nAn email will be sent to activate your account.", preferredStyle: .alert)
@@ -357,34 +326,47 @@ class ProfileIndexViewController: UIViewController, GIDSignInUIDelegate {
                             post2.addAction(UIAlertAction(title: "OK", style: .default, handler: { (_) in
                                 
                                 Alamofire.request("http://popnus.com/index.php/mobile/signUp?mail=\(emailIn)").responseJSON { response in
+                                    
                                     print("Request: \(String(describing: response.request))")   // original url request
+                                    
                                     print("Response: \(String(describing: response.response))") // http url response
+                                    
                                     print("Result: \(response.result)")                         // response serialization result
                                     
                                     if let json = response.result.value as? [String: Any] {
+                                        
                                         self.appDelegate.userID = json["uid"] as! String
+                                        
                                         print("JSON: \(self.appDelegate.userID)") // serialized json response
+                                        
                                     }
                                     
                                     if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
+                                        
                                         print("Data: \(utf8Text)") // original server data as UTF8 string
+                                        
                                     }
                                     
                                 }
                                 
                                 self.transitionViewControllerEmail(emailAddr: emailIn)
+                                
                             }))
                             
                             self.present(post2, animated: true, completion: nil)
                             
                         })
                     }
+                        
                     else {
+                        
                         let alertController = UIAlertController(title: "Error", message: error?.localizedDescription, preferredStyle: .alert)
                         
                         let defaultAction = UIAlertAction(title: "OK", style: .default) { (_) in
                             self.presentAlert()
+                            
                         }
+                        
                         alertController.addAction(defaultAction)
                         
                         self.present(alertController, animated: true, completion: nil)

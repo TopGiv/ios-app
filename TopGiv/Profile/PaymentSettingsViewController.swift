@@ -8,6 +8,7 @@
 
 import UIKit
 import FirebaseDatabase
+import Alamofire
 
 class PaymentSettingsViewController: UIViewController {
 
@@ -21,8 +22,8 @@ class PaymentSettingsViewController: UIViewController {
     @IBOutlet weak var tf_Email: UITextField!
     @IBOutlet weak var tf_CVV: UITextField!
     
-    
-    var ref: DatabaseReference!
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,7 +52,9 @@ class PaymentSettingsViewController: UIViewController {
     func interfacelayout() {
         
         tf_CardA.becomeFirstResponder()
+        
         bt_Save.layer.cornerRadius = 20
+        
         bt_Save.clipsToBounds = true
         
     }
@@ -59,7 +62,9 @@ class PaymentSettingsViewController: UIViewController {
     @IBAction func onCardA(_ sender: Any) {
         
         if (tf_CardA.text?.characters.count == 4) {
+            
             tf_CardB.becomeFirstResponder()
+            
         }
         
     }
@@ -67,7 +72,9 @@ class PaymentSettingsViewController: UIViewController {
     @IBAction func onCardB(_ sender: Any) {
         
         if (tf_CardB.text?.characters.count == 4) {
+            
             tf_CardC.becomeFirstResponder()
+            
         }
         
     }
@@ -75,7 +82,9 @@ class PaymentSettingsViewController: UIViewController {
     @IBAction func onCardC(_ sender: Any) {
         
         if (tf_CardC.text?.characters.count == 4) {
+            
             tf_CardD.becomeFirstResponder()
+            
         }
         
     }
@@ -83,12 +92,15 @@ class PaymentSettingsViewController: UIViewController {
     @IBAction func onCardD(_ sender: Any) {
         
         if (tf_CardD.text?.characters.count == 4) {
+            
             tf_Name.becomeFirstResponder()
+            
         }
         
     }
 
     @IBAction func onEditing(_ sender: UITextField) {
+        //The date picker for expiration date
         
         let datePickerView:UIDatePicker = UIDatePicker()
         
@@ -101,6 +113,7 @@ class PaymentSettingsViewController: UIViewController {
     }
     
     func datePickerValueChanged(sender:UIDatePicker) {
+        //This is for expiration date
         
         let dateFormatter = DateFormatter()
         
@@ -108,7 +121,11 @@ class PaymentSettingsViewController: UIViewController {
         
         dateFormatter.timeStyle = DateFormatter.Style.none
         
-        tf_Date.text = dateFormatter.string(from: sender.date)
+        let dateChosen = dateFormatter.string(from: sender.date)
+        
+        let dateShown = dateChosen.components(separatedBy: " ")
+        
+        tf_Date.text = "\(dateShown[0])/\(dateShown[2])"
         
     }
     
@@ -124,64 +141,80 @@ class PaymentSettingsViewController: UIViewController {
             
             self.present(alertController, animated: true, completion: nil)
         }
+            
         else {
             
             let providedEmailAddress = tf_Email.text
             
-            let isEmailAddressValid = isValidEmailAddress(emailAddressString: providedEmailAddress!)
+            let isEmailAddressValid = isValidEmailAddress(emailAddressString: providedEmailAddress!)        //Email validation
             
             if isEmailAddressValid
             {
+                
                 print("Email address is valid")
+                
             } else {
+                
                 print("Email address is not valid")
+                
                 displayAlertMessage(messageToDisplay: "Email address is not valid")
+                
             }
             
-            self.ref = Database.database().reference()
-            
-            let paymentSettingRef = self.ref!
-                .child("payment_settings")
-                .childByAutoId()
-            
-            let paymentSettingId = paymentSettingRef.key
-            
-            let paymentSettingData = [
-                "ID": paymentSettingId,
-                "card_number": "\(self.tf_CardA.text!)-\(self.tf_CardB.text!)-\(self.tf_CardC.text!)-\(self.tf_CardD.text!)",
-                "date": self.tf_Date.text!,
-                "email": self.tf_Email.text!,
-                "holdername": self.tf_Name.text!,
-                "CVV": self.tf_CVV.text!
-                ] as [String : Any]
-            
-            print(paymentSettingData)
-            
-            paymentSettingRef.setValue(paymentSettingData)
+            Alamofire.request("http://popnus.com/index.php/mobile/updateCardInfo?uid=\(self.appDelegate.userID)&card_number=\(self.tf_CardA.text!)-\(self.tf_CardB.text!)-\(self.tf_CardC.text!)-\(self.tf_CardD.text!)&card_name=\(self.tf_Name.text!)&cvc=\(self.tf_CVV.text!)").responseJSON { response in
+                
+                print("Request: \(String(describing: response.request))")   // original url request
+                
+                print("Response: \(String(describing: response.response))") // http url response
+                
+                print("Result: \(response.result)")                         // response serialization result
+                
+                if let json = response.result.value {
+                    
+                    print("JSON: \(json)") // serialized json response
+                }
+                
+                if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
+                    
+                    print("Data: \(utf8Text)") // original server data as UTF8 string
+                    
+                }
+            }
      
             self.dismiss(animated: true, completion: nil)
+            
         }
         
     }
     
     func isValidEmailAddress(emailAddressString: String) -> Bool {
+        //This is for email validation
         
         var returnValue = true
+        
         let emailRegEx = "[A-Z0-9a-z.-_]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,3}"
         
         do {
+            
             let regex = try NSRegularExpression(pattern: emailRegEx)
+            
             let nsString = emailAddressString as NSString
+            
             let results = regex.matches(in: emailAddressString, range: NSRange(location: 0, length: nsString.length))
             
             if results.count == 0
             {
+                
                 returnValue = false
+                
             }
             
         } catch let error as NSError {
+            
             print("invalid regex: \(error.localizedDescription)")
+            
             returnValue = false
+            
         }
         
         return  returnValue
@@ -189,7 +222,7 @@ class PaymentSettingsViewController: UIViewController {
     }
     
     func displayAlertMessage(messageToDisplay: String){
-        
+        //To display alert message
         let alertController = UIAlertController(title: "Alert", message: messageToDisplay, preferredStyle: .alert)
         
         let OKAction = UIAlertAction(title: "OK", style: .default) { (action:UIAlertAction!) in
