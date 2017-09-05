@@ -10,7 +10,8 @@ import UIKit
 import Firebase
 import GoogleSignIn
 import FBSDKLoginKit
-
+import Stripe
+import CoreData
 
 
 @UIApplicationMain
@@ -18,7 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
 
     var window: UIWindow?
     var loginMode = 0
-
+    var userID = ""
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -30,10 +31,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         
         // [START setup_gidsignin]
         GIDSignIn.sharedInstance().clientID = FirebaseApp.app()?.options.clientID
+        
         GIDSignIn.sharedInstance().delegate = self
         // [END setup_gidsignin]
         
         FBSDKApplicationDelegate.sharedInstance().application(application, didFinishLaunchingWithOptions: launchOptions)
+
+        Stripe.setDefaultPublishableKey("pk_test_g8WKfRukyzUdNWy0lJ7cFna5")
 
         return true
     }
@@ -63,42 +67,63 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
     
     func application(_ application: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any])
         -> Bool {
+            
             if loginMode == 1 {
+                
                 return FBSDKApplicationDelegate.sharedInstance().application(application, open: url, options: options)
+                
             }
             else if loginMode == 2 {
+                
                 return GIDSignIn.sharedInstance().handle(url,sourceApplication:options[UIApplicationOpenURLOptionsKey.sourceApplication] as? String, annotation: [:])
+                
             }
             else {
+                
                 return false
+                
             }
+            
     }
     
     func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error?) {
         // ...
         if let error = error {
+            
             print(error.localizedDescription)
+            
             return
+            
         }
+            
         else {
+            
             // Perform any operations on signed in user here.
             let userId = user.userID                  // For client-side use only!
+            
             let idToken = user.authentication.idToken // Safe to send to the server
+            
             let fullName = user.profile.name
+            
             let givenName = user.profile.givenName
+            
             let familyName = user.profile.familyName
+            
             let email = user.profile.email
+            
             print(userId!, idToken!, fullName!, givenName!, familyName!, email!)
+            
         }
         
         guard let authentication = user.authentication else { return }
+        
         let credential = GoogleAuthProvider.credential(withIDToken: authentication.idToken,
                                                        accessToken: authentication.accessToken)
         
         Auth.auth().signIn(with: credential) { (user, error) in
             
-            
         }
+        
     }
 
 }
