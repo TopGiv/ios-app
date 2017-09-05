@@ -48,6 +48,7 @@ class EventsOneViewController: UIViewController {
 
     @IBAction func onShare(_ sender: Any) {
         //This is when Share button is clicked
+        
         // text to share
         let text = "\(titlePassed)\n\(placePassed)\n\(datePassed)\n\(contentsPassed)"
         
@@ -78,15 +79,6 @@ class EventsOneViewController: UIViewController {
     
     func interfacelayout() {
         //This is for the Interface
-//        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
-        
-//        self.navigationController?.navigationBar.shadowImage = UIImage()
-        
-//        self.navigationController?.navigationBar.isTranslucent = true
-        
-//        self.navigationController?.view.backgroundColor = .clear
-        
-//        self.navigationItem.hidesBackButton = true
  
         tv_Content.text = contentsPassed        //This is a description of a event
         
@@ -96,7 +88,7 @@ class EventsOneViewController: UIViewController {
         
         lb_Place.text = placePassed     //This is a place of a event
         
-        img_Back.image = UIImage.init(named: imagePassed)       //This is a image for a event
+        getImage(imageurl: imagePassed, imageview: img_Back)        //This is a image for a event
         
         self.navigationController?.navigationBar.isHidden = true
         
@@ -135,6 +127,7 @@ class EventsOneViewController: UIViewController {
     
     func transitionViewController() {
         //This is for transition of views
+        
         let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
         
         let vc = storyBoard.instantiateViewController(withIdentifier: "AddEventViewController")
@@ -147,9 +140,38 @@ class EventsOneViewController: UIViewController {
         self.present(vc, animated: true)
         
     }
+    
     @IBAction func onBack(_ sender: Any) {
         
         self.navigationController?.popViewController(animated: true)
+        
+    }
+    
+    func getImage (imageurl: String, imageview: UIImageView) {
+        //This is for loading images from the server
+        
+        let url: URL = URL(string: imageurl)!
+        
+        let session = URLSession.shared
+        
+        let task = session.dataTask(with: url, completionHandler: { (data, response, error) in
+            
+            if data != nil {
+                
+                let image = UIImage(data: data!)
+                
+                if image != nil {
+                    
+                    DispatchQueue.main.async(execute: {
+                        
+                        imageview.image = image
+                        
+                    })
+                }
+            }
+        })
+        
+        task.resume()
         
     }
 

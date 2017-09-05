@@ -85,8 +85,7 @@ class EventGViewController: UIViewController, UITableViewDataSource, UITableView
         
         cell.lb_Title.text = object["title"]! as? String        //This is a title of an event
         
-//        cell.img_Back.image = UIImage.init(named: (object["image"]! as? String)!)       //This is an image for an event
-        getImage(imageurl: (object["image"]! as? String)!, imageview: cell.img_Back)
+        getImage(imageurl: (object["image"]! as? String)!, imageview: cell.img_Back)        //This is an image for an event
         
         cell.lb_Mark.layer.cornerRadius = 10
         
@@ -94,18 +93,22 @@ class EventGViewController: UIViewController, UITableViewDataSource, UITableView
         
         cell.lb_Place.text = object["place"]! as? String        //This is a place for an event
         
-//        cell.lb_Date.text = object["date"]! as? String          //This is a date for an event
-        
+        //This is a date for an event
         let timeResult = Double((object["date"]! as? String)!)
+        
         let date = NSDate(timeIntervalSince1970: timeResult!)
+        
         let dateFormatter = DateFormatter()
+        
         dateFormatter.timeStyle = DateFormatter.Style.medium //Set time style
+        
         dateFormatter.dateStyle = DateFormatter.Style.medium //Set date style
+        
         let localDate = dateFormatter.string(from: date as Date)
+        
         cell.lb_Date.text = localDate
         
-//        cell.img_Thumbnail.image = UIImage.init(named: (object["image"]! as? String)!)      //This is a thumbnail for an event
-        getImage(imageurl: (object["image"]! as? String)!, imageview: cell.img_Thumbnail)
+        getImage(imageurl: (object["image"]! as? String)!, imageview: cell.img_Thumbnail)       //This is a thumbnail for an event
         
         cell.backgroundColor = UIColor.clear
         
@@ -157,9 +160,10 @@ class EventGViewController: UIViewController, UITableViewDataSource, UITableView
         Alamofire.request("http://popnus.com/index.php/mobile/events").responseJSON { response in
             
             print("Request: \(String(describing: response.request))")   // original url request
-            print("Response: \(String(describing: response.response))") // http url response
-            print("Result: \(response.result)")                         // response serialization result
             
+            print("Response: \(String(describing: response.response))") // http url response
+            
+            print("Result: \(response.result)")                         // response serialization result
             
             if let json = response.result.value as? Dictionary<String, AnyObject> {
                 
@@ -233,14 +237,6 @@ class EventGViewController: UIViewController, UITableViewDataSource, UITableView
     func interfacelayout() {
         //This is for the Interface
         
-        //        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
-        
-        //        self.navigationController?.navigationBar.shadowImage = UIImage()
-        
-        //        self.navigationController?.navigationBar.isTranslucent = true
-        
-        //        self.navigationController?.view.backgroundColor = .clear
-        
         self.navigationController?.isNavigationBarHidden = true
         
         tbl_Event.delegate = self
@@ -270,6 +266,7 @@ class EventGViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     func onDislikeButton(sender: UIButton) {   //This is the case when the dislike button is pressed
+        
         let rowNum = sender.tag
         
         print(rowNum)
@@ -277,10 +274,6 @@ class EventGViewController: UIViewController, UITableViewDataSource, UITableView
         userDict.remove(at: rowNum)
         
         tbl_Event.reloadData()
-        
-        //        let indexPath = IndexPath(item: rowNum, section: 0)
-        
-        //        tbl_Event.deleteRows(at: [indexPath], with: .automatic)
         
     }
     
@@ -313,11 +306,17 @@ class EventGViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     func unixtoDate(timeResult: Double) -> String {
+        
         let date = NSDate(timeIntervalSince1970: timeResult)
+        
         let dateFormatter = DateFormatter()
+        
         dateFormatter.timeStyle = DateFormatter.Style.medium //Set time style
+        
         dateFormatter.dateStyle = DateFormatter.Style.medium //Set date style
+        
         return dateFormatter.string(from: date as Date)
+        
     }
     
 }
