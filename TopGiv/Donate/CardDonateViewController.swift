@@ -19,7 +19,6 @@ class CardDonateViewController: UIViewController {
     var URL: String!
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
-
     @IBOutlet var tf_CardA: UITextField!
     @IBOutlet var tf_CardB: UITextField!
     @IBOutlet var tf_CardC: UITextField!
@@ -29,8 +28,6 @@ class CardDonateViewController: UIViewController {
     @IBOutlet var tf_Date: UITextField!
     @IBOutlet var tf_Email: UITextField!
     @IBOutlet weak var tf_CVC: UITextField!
-    
-    var ref: DatabaseReference!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -65,7 +62,6 @@ class CardDonateViewController: UIViewController {
         
         dateFormatter.timeStyle = DateFormatter.Style.none
         
-//        let today = dateFormatter.string(from: Date())
         let today = String(Int(NSDate().timeIntervalSince1970))
         
         //This is validation for all the textfields
@@ -80,6 +76,7 @@ class CardDonateViewController: UIViewController {
             
             self.present(alertController, animated: true, completion: nil)
         }
+            
         else {
             
             let providedEmailAddress = tf_Email.text
@@ -99,46 +96,10 @@ class CardDonateViewController: UIViewController {
                 
             }
             
-//            self.ref = Database.database().reference()      //This is for setting Firebase database
-//            
-//            let newDonationRef = self.ref!
-//                .child("donation_history")
-//                .childByAutoId()
-//            
-//            let newDonationId = newDonationRef.key
-//            
-//            let newDonationData = [
-//                "donation_id": newDonationId,
-//                "title": self.titlePassed,
-//                "date": today,
-//                "amount": self.amountPassed,
-//                "email": self.tf_Email.text!,
-//                "holdername": self.tf_HolderName.text!,
-//                "via": "Card"
-//                ] as [String : Any]
-            
             let donationCategory = titlePassed.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)!
             
             URL = "http://popnus.com/index.php/mobile/addHistory?mail=\(String(describing: tf_Email.text!))&amount=\(amountPassed)&date=\(today)&kind=\(donationCategory)&token="
-            
-//            Alamofire.request("http://popnus.com/index.php/mobile/addHistory?mail=\(String(describing: tf_Email.text!))&amount=\(amountPassed)&date=\(today)&kind=\(donationCategory)").responseJSON { response in
-//                
-//                print("Request: \(String(describing: response.request))")   // original url request
-//                print("Response: \(String(describing: response.response))") // http url response
-//                print("Result: \(response.result)")                         // response serialization result
-//                
-//                if let json = response.result.value as? [String: Any] {
-//                    self.appDelegate.userID = json["uid"] as! String
-//                    print("JSON: \(self.appDelegate.userID)") // serialized json response
-//                }
-//                
-//                if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
-//                    print("Data: \(utf8Text)") // original server data as UTF8 string
-//                }
-//            }
 
-            
-            
             //Stripe payment processing
             // Initiate the card
             let stripCard = STPCard()
@@ -187,8 +148,6 @@ class CardDonateViewController: UIViewController {
                
             }
             
-//            newDonationRef.setValue(newDonationData)        //This is for storing data to Firebase database
-            
             displayThanksMessage(messageToDisplay: "Your donation is complete\nWe are so grateful to you for your gift - thanks!")
         
         }
@@ -209,6 +168,7 @@ class CardDonateViewController: UIViewController {
     
     func datePickerValueChanged(sender:UIDatePicker) {
         //This is for expiration date
+        
         let dateFormatter = DateFormatter()
         
         dateFormatter.dateStyle = DateFormatter.Style.medium
@@ -220,10 +180,12 @@ class CardDonateViewController: UIViewController {
         let dateShown = dateChosen.components(separatedBy: " ")
         
         tf_Date.text = "\(dateShown[0])/\(dateShown[2])"
+        
     }
     
     func interfacelayout() {
         //This is for the Interface
+        
         tf_CardA.becomeFirstResponder()
         
         bt_Donate.layer.cornerRadius = 20
@@ -351,34 +313,50 @@ class CardDonateViewController: UIViewController {
     func monthConvert(mediumMonth: String) -> Int
     {
         //This is for expiratoin date
+        
         switch mediumMonth {
+            
         case "Jan":
             return 1
+            
         case "Feb":
             return 2
+            
         case "Mar":
             return 3
+            
         case "Apr":
             return 4
+            
         case "May":
             return 5
+            
         case "Jun":
             return 6
+            
         case "Jul":
             return 7
+            
         case "Aug":
             return 8
+            
         case "Sep":
             return 9
+            
         case "Oct":
             return 10
+            
         case "Nov":
             return 11
+            
         case "Dec":
             return 12
+            
         default:
             return 1
+            
         }
+        
     }
     
     func handleError(error: NSError) {      //To handle errors for Stripe
@@ -404,16 +382,23 @@ class CardDonateViewController: UIViewController {
         Alamofire.request("\(self.URL!)\(ID)").responseJSON { response in
             
             print("Request: \(String(describing: response.request))")   // original url request
+            
             print("Response: \(String(describing: response.response))") // http url response
+            
             print("Result: \(response.result)")                         // response serialization result
             
             if let json = response.result.value as? [String: Any] {
+                
                 print("JSON: \(json)") // serialized json response
+                
             }
             
             if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
+                
                 print("Data: \(utf8Text)") // original server data as UTF8 string
+                
             }
+            
         }
         
     }

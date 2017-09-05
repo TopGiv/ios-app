@@ -176,9 +176,7 @@ class DonationIndexViewController: UIViewController {
         pv_Fund.text = "General Fund"
         
         pv_Fund.textColor = .darkGray
-        
-//        pv_Fund.textColor = UIColor(red: 10/255, green: 97/255, blue: 115/255, alpha: 1)
-        
+                
         pv_Fund.stringDidChange = { index in
             
             print("selectedString ", stringData[index])
@@ -192,8 +190,6 @@ class DonationIndexViewController: UIViewController {
     func interfacelayout() {
         //This is for the interface
         
-//        self.navigationController?.isNavigationBarHidden = true
-        
         self.navigationController?.navigationBar.topItem?.title = "DONATE"
         
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
@@ -205,10 +201,6 @@ class DonationIndexViewController: UIViewController {
         self.navigationController?.view.backgroundColor = .clear
         
         self.navigationController!.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName : UIColor.white]
-        
-//        self.navigationItem.backBarButtonItem = UIBarButtonItem(title:"Donate", style:.plain, target:nil, action:nil)
-        
-//        self.title = "DONATE"
         
         uv_Contents.layer.cornerRadius = 7
         
@@ -316,8 +308,6 @@ class DonationIndexViewController: UIViewController {
         vc.amountPassed = amount        //Amount to be donated
         
         vc.titlePassed = donationTitle      //Form of donation
-        
-//        self.present(vc, animated: true)
         
         self.navigationController?.pushViewController(vc, animated: true)
         

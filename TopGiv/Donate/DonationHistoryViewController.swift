@@ -20,7 +20,6 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
     @IBOutlet weak var bt_Emailreceipts: UIButton!
     @IBOutlet var tbl_History: UITableView!
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
-//    var ref:DatabaseReference!
     var userDict:[NSDictionary] = []
     var emailPassed = ""
     var dateSelected = ""
@@ -116,13 +115,14 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
         
         ai_Loading.startAnimating()     //Start spinning
         
-        //To fetch data of donation history from backendr
+        //To fetch data of donation history from backend
         Alamofire.request("http://popnus.com/index.php/mobile/history?uid=\(self.appDelegate.userID)").responseJSON { response in
             
             print("Request: \(String(describing: response.request))")   // original url request
-            print("Response: \(String(describing: response.response))") // http url response
-            print("Result: \(response.result)")                         // response serialization result
             
+            print("Response: \(String(describing: response.response))") // http url response
+            
+            print("Result: \(response.result)")                         // response serialization result
             
             if let json = response.result.value as? Dictionary<String, AnyObject> {
                 
@@ -155,24 +155,6 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
                 }
                 
             }
-        //To fetch data of donation history from Firebase
-//        ref = Database.database().reference()
-//        
-//        ref.child("donation_history").queryOrdered(byChild: "email").queryEqual(toValue: Auth.auth().currentUser?.email).observeSingleEvent(of: .value, with: { snapshot in
-//            
-//            for child in snapshot.children {
-//                
-//                let dataCategory = ((child as! DataSnapshot).value as! NSDictionary)["title"] ?? ""
-//                
-//                let dataDate = ((child as! DataSnapshot).value as! NSDictionary)["date"] ?? ""
-//                
-//                let dataAmount = ((child as! DataSnapshot).value as! NSDictionary)["amount"] ?? ""
-//                
-//                let data: NSDictionary = ["category": dataCategory as! String, "date": dataDate as! String, "amount": "$\(dataAmount)"]
-//                
-//                self.userDict.append(data)
-//                
-            
             
             print(self.userDict)
             
@@ -183,7 +165,6 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
             self.tbl_History.reloadData()
             
         }
-//        })
         
     }
     
@@ -342,17 +323,24 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
     
     func mailComposeController(controller: MFMailComposeViewController,
                                didFinishWithResult result: MFMailComposeResult, error: NSError?) {
-        // Check the result or perform other tasks.
+
         // Dismiss the mail compose view controller.
         controller.dismiss(animated: true, completion: nil)
         
     }
     
     func unixtoDate(timeResult: Double) -> String {
+        
         let date = NSDate(timeIntervalSince1970: timeResult)
+        
         let dateFormatter = DateFormatter()
+        
         dateFormatter.timeStyle = DateFormatter.Style.medium //Set time style
+        
         dateFormatter.dateStyle = DateFormatter.Style.medium //Set date style
+        
         return dateFormatter.string(from: date as Date)
+        
     }
+    
 }

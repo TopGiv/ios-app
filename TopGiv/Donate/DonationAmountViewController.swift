@@ -30,10 +30,7 @@ extension DonationAmountViewController: PKPaymentAuthorizationViewControllerDele
 class DonationAmountViewController: UIViewController {
     
     let SupportedPaymentNetworks = [PKPaymentNetwork.visa, PKPaymentNetwork.masterCard, PKPaymentNetwork.amex]
-    
     let ApplePaySwagMerchantID = "merchant.com.topgiv.merchant" // Fill in your merchant ID here!
-
-    
     var amountPassed = 0
     var titlePassed = ""
 
@@ -174,9 +171,7 @@ class DonationAmountViewController: UIViewController {
         vc.amountPassed = self.amountPassed     //The amount of donation a user selected
         
         vc.titlePassed = self.titlePassed       //The form of donation a user selected
-        
-        //        self.present(vc, animated: true)
-        
+                
         self.navigationController?.pushViewController(vc, animated: true)
         
     }

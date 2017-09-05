@@ -22,8 +22,6 @@ class PaymentSettingsViewController: UIViewController {
     @IBOutlet weak var tf_Email: UITextField!
     @IBOutlet weak var tf_CVV: UITextField!
     
-    
-    var ref: DatabaseReference!
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
     
@@ -116,6 +114,7 @@ class PaymentSettingsViewController: UIViewController {
     
     func datePickerValueChanged(sender:UIDatePicker) {
         //This is for expiration date
+        
         let dateFormatter = DateFormatter()
         
         dateFormatter.dateStyle = DateFormatter.Style.medium
@@ -142,6 +141,7 @@ class PaymentSettingsViewController: UIViewController {
             
             self.present(alertController, animated: true, completion: nil)
         }
+            
         else {
             
             let providedEmailAddress = tf_Email.text
@@ -160,27 +160,6 @@ class PaymentSettingsViewController: UIViewController {
                 displayAlertMessage(messageToDisplay: "Email address is not valid")
                 
             }
-            
-//            self.ref = Database.database().reference()      //To initialize Firebase
-//            
-//            let paymentSettingRef = self.ref!
-//                .child("payment_settings")
-//                .childByAutoId()
-//            
-//            let paymentSettingId = paymentSettingRef.key
-//            
-//            let paymentSettingData = [      //Data to be stored on Firebase database
-//                "ID": paymentSettingId,
-//                "card_number": "\(self.tf_CardA.text!)-\(self.tf_CardB.text!)-\(self.tf_CardC.text!)-\(self.tf_CardD.text!)",
-//                "date": self.tf_Date.text!,
-//                "email": self.tf_Email.text!,
-//                "holdername": self.tf_Name.text!,
-//                "CVV": self.tf_CVV.text!
-//                ] as [String : Any]
-            
-//            print(paymentSettingData)
-            
-//            paymentSettingRef.setValue(paymentSettingData)
             
             Alamofire.request("http://popnus.com/index.php/mobile/updateCardInfo?uid=\(self.appDelegate.userID)&card_number=\(self.tf_CardA.text!)-\(self.tf_CardB.text!)-\(self.tf_CardC.text!)-\(self.tf_CardD.text!)&card_name=\(self.tf_Name.text!)&cvc=\(self.tf_CVV.text!)").responseJSON { response in
                 
