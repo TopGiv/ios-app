@@ -8,7 +8,6 @@
 
 import UIKit
 import FirebaseDatabase
-import FirebaseAuth
 
 class ProfileInfoViewController: UIViewController {
 
@@ -47,7 +46,7 @@ class ProfileInfoViewController: UIViewController {
         activityViewController.popoverPresentationController?.sourceView = self.view // so that iPads won't crash
         
         // exclude some activity types from the list (optional)
-        activityViewController.excludedActivityTypes = [ UIActivityType.airDrop, UIActivityType.postToFacebook,  UIActivityType.postToTwitter, UIActivityType.mail, UIActivityType.message ]
+        activityViewController.excludedActivityTypes = [ UIActivityType.airDrop ]
         
         // present the view controller
         self.present(activityViewController, animated: true, completion: nil)
@@ -110,7 +109,9 @@ class ProfileInfoViewController: UIViewController {
             
             let vc = storyBoard.instantiateViewController(withIdentifier: target)
             
-            self.present(vc, animated: true)
+            self.navigationController?.pushViewController(vc, animated: true)
+            
+//            self.present(vc, animated: true)
             
         }
         

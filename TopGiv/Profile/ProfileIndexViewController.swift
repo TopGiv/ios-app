@@ -20,7 +20,7 @@ class ProfileIndexViewController: UIViewController, GIDSignInUIDelegate {
     @IBOutlet weak var bt_Signinemail: UIButton!
     @IBOutlet weak var bt_Signingplus: UIButton!
     @IBOutlet weak var bt_Signinfb: UIButton!
-        
+    
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     override func viewDidLoad() {
@@ -82,7 +82,9 @@ class ProfileIndexViewController: UIViewController, GIDSignInUIDelegate {
         
         appDelegate.loginMode = 2       //This is for avoiding conflicts between FB sign in and G+ sign in
         
-        GIDSignIn.sharedInstance().signIn()
+        
+        
+//        GIDSignIn.sharedInstance().signIn()
         
         if (GIDSignIn.sharedInstance().hasAuthInKeychain()){
             
@@ -91,22 +93,38 @@ class ProfileIndexViewController: UIViewController, GIDSignInUIDelegate {
             loggedEmail = GIDSignIn.sharedInstance().currentUser.profile.email
             
             Alamofire.request("http://popnus.com/index.php/mobile/signUp?mail=\(loggedEmail)").responseJSON { response in
-                            print("Request: \(String(describing: response.request))")   // original url request
-                            print("Response: \(String(describing: response.response))") // http url response
-                            print("Result: \(response.result)")                         // response serialization result
+                
+                print("Request: \(String(describing: response.request))")   // original url request
+                
+                print("Response: \(String(describing: response.response))") // http url response
+                
+                print("Result: \(response.result)")                         // response serialization result
                 
                 if let json = response.result.value as? [String: Any] {
+                    
                     self.appDelegate.userID = json["uid"] as! String
+                    
                     print("JSON: \(self.appDelegate.userID)") // serialized json response
+                    
                 }
                 
                 if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
+                    
                     print("Data: \(utf8Text)") // original server data as UTF8 string
+                    
                 }
                 
             }
             
+            GIDSignIn.sharedInstance().disconnect()
+            
             transitionViewController(email: GIDSignIn.sharedInstance().currentUser.profile.email, fullname: GIDSignIn.sharedInstance().currentUser.profile.name)
+            
+        }
+            
+        else {
+            
+            GIDSignIn.sharedInstance().signIn()
             
         }
         
@@ -172,6 +190,7 @@ class ProfileIndexViewController: UIViewController, GIDSignInUIDelegate {
     }
     
     func transitionViewController(email: String, fullname: String) {
+        
         //This is for transition of views
         
         let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
@@ -300,18 +319,18 @@ class ProfileIndexViewController: UIViewController, GIDSignInUIDelegate {
                     let when = DispatchTime.now() + 1
                     DispatchQueue.main.asyncAfter(deadline: when) {
                         
-                        Auth.auth().currentUser?.sendEmailVerification(completion: { (error) in
-                            
+//                        Auth.auth().currentUser?.sendEmailVerification(completion: { (error) in
+                        
                             let post2 = UIAlertController(title: "Please check your email", message: "Verification sent!\nAn email will be sent to activate your account.", preferredStyle: .alert)
                             
                             post2.addAction(UIAlertAction(title: "OK", style: .default, handler: { (_) in
                                 
                                 self.transitionViewControllerEmail(emailAddr: emailIn)
                             }))
-                            
+                        
                             self.present(post2, animated: true, completion: nil)
                             
-                        })
+//                        })
                     }
                     
                 } else {
@@ -319,8 +338,8 @@ class ProfileIndexViewController: UIViewController, GIDSignInUIDelegate {
                     
                     if nsError.code == 17007 {
                         
-                        Auth.auth().currentUser?.sendEmailVerification(completion: { (error) in
-                            
+//                        Auth.auth().currentUser?.sendEmailVerification(completion: { (error) in
+                        
                             let post2 = UIAlertController(title: "Please check your email", message: "Verification sent!\nAn email will be sent to activate your account.", preferredStyle: .alert)
                             
                             post2.addAction(UIAlertAction(title: "OK", style: .default, handler: { (_) in
@@ -355,7 +374,7 @@ class ProfileIndexViewController: UIViewController, GIDSignInUIDelegate {
                             
                             self.present(post2, animated: true, completion: nil)
                             
-                        })
+//                        })
                     }
                         
                     else {
