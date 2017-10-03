@@ -7,12 +7,13 @@
 //
 
 import UIKit
+import MessageUI
+import Alamofire
 
-class ContactUsCViewController: UIViewController {
+class ContactUsCViewController: UIViewController, MFMailComposeViewControllerDelegate {
     
     @IBOutlet var v_ContentsA: UIView!
     @IBOutlet var v_ContentsB: UIView!
-    @IBOutlet var bt_Rate: UIButton!
     @IBOutlet var bt_More: UIButton!
     @IBOutlet var lb_ContentsA: UILabel!
     @IBOutlet var lb_URL: UILabel!
@@ -21,13 +22,22 @@ class ContactUsCViewController: UIViewController {
     @IBOutlet weak var lb_URL_B: UILabel!
     @IBOutlet weak var lb_Phone_B: UILabel!
     @IBOutlet weak var lb_Email_B: UILabel!
+    
     var moreless = true
+    let delta = 180
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
         interfacelayout()
+        
+        fetchInfo()
+        
+        if !MFMailComposeViewController.canSendMail() {
+            print("Mail services are not available")
+            return
+        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -45,6 +55,41 @@ class ContactUsCViewController: UIViewController {
     }
     */
     
+    func fetchInfo() {
+        Alamofire.request("http://popnus.com/index.php/mobile/info").responseJSON { response in
+            
+            print("Request: \(String(describing: response.request))")   // original url request
+            
+            print("Response: \(String(describing: response.response))") // http url response
+            
+            print("Result: \(response.result)")                         // response serialization result
+            
+            if let json = response.result.value as? Dictionary<String, AnyObject> {
+                
+                print("&&& This is donation data:\n\(json)")
+                
+                if let data = json["data"] as? Array<AnyObject> {
+                    
+                    for myEntry in data {
+                        
+                        print("&&&\(myEntry)")
+                        
+                        self.lb_URL.text = myEntry["website"] as? String
+                        
+                        self.lb_Email.text = myEntry["email"] as? String
+                        
+                        self.lb_Phone.text = myEntry["phone"] as? String
+                        
+                    }
+                    
+                }
+                
+            }
+            
+        }
+        
+    }
+    
     func interfacelayout() {
         //This is for the Interface
         
@@ -55,10 +100,6 @@ class ContactUsCViewController: UIViewController {
         v_ContentsB.layer.cornerRadius = 4
         
         v_ContentsB.clipsToBounds = true
-        
-        bt_Rate.layer.cornerRadius = 20
-        
-        bt_Rate.clipsToBounds = true
         
         lb_URL.isUserInteractionEnabled = true
         
@@ -150,27 +191,47 @@ class ContactUsCViewController: UIViewController {
 
     @IBAction func onMoreContents(_ sender: Any) {
         //This is for "About Richmond"
+        
+        let X_Position:CGFloat? = bt_More.frame.origin.x
+        
+        let Y_Position:CGFloat? = bt_More.frame.origin.y
+        
+        UIView.animate(withDuration: 1.0, animations: {
+            
+            if (self.moreless) {
+                
+                self.bt_More.frame.origin = CGPoint(x: X_Position!, y: Y_Position! + 180)
+                
+//                self.lb_ContentsA.frame.size.height = self.lb_ContentsA.frame.size.height + 180
+                
+                self.v_ContentsA.frame.size.height = self.v_ContentsA.frame.size.height + 180.0
+                
+            }
+            
+            else {
+                
+                self.bt_More.frame.origin = CGPoint(x: X_Position!, y: Y_Position! - 180)
+                
+//                self.lb_ContentsA.frame.size.height = self.lb_ContentsA.frame.size.height - 180
+                
+                self.v_ContentsA.frame.size.height = self.v_ContentsA.frame.size.height - 180.0
+                
+            }
+            
+            
+        })
+        
         if (moreless) {
             
-            v_ContentsA.frame.size.height = v_ContentsA.frame.size.height + 180.0
-            
-            bt_More.frame.origin = CGPoint(x: 159, y: 301)
-            
             bt_More.setImage(UIImage.init(named: "less-icon.png"), for: .normal)
-            
-            lb_ContentsA.frame.size.height = lb_ContentsA.frame.size.height + 180.0
             
             moreless = false
             
         }
+        
         else {
-            v_ContentsA.frame.size.height = v_ContentsA.frame.size.height - 180.0
-            
-            bt_More.frame.origin = CGPoint(x: 159, y: 121)
             
             bt_More.setImage(UIImage.init(named: "more-icon.png"), for: .normal)
-            
-            lb_ContentsA.frame.size.height = lb_ContentsA.frame.size.height - 180.0
             
             moreless = true
             
@@ -198,6 +259,7 @@ class ContactUsCViewController: UIViewController {
     }
     
     func tapPhoneFunction() {
+        //To call Richmond
         
         if let url = NSURL(string: "tel://8043440906"), UIApplication.shared.canOpenURL(url as URL) {
             
@@ -210,6 +272,7 @@ class ContactUsCViewController: UIViewController {
                 UIApplication.shared.openURL(url as URL)
                 
             }
+            
         }
         
     }
@@ -217,11 +280,19 @@ class ContactUsCViewController: UIViewController {
     func tapEmailFunction() {
         //This is for emailing to the Richmond
         
-        let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        let composeVC = MFMailComposeViewController()
+        composeVC.mailComposeDelegate = self
         
-        let vc = storyBoard.instantiateViewController(withIdentifier: "EmailViewController") as! EmailViewController
+        // Configure the fields of the interface.
+        composeVC.setToRecipients(["smckinney@richmondballet.com"])
         
-        self.present(vc, animated: true)
-        
+        // Present the view controller modally.
+        self.present(composeVC, animated: true, completion: nil)
+
     }
+    
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        controller.dismiss(animated: true, completion: nil)
+    }
+    
 }
