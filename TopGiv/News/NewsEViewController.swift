@@ -7,7 +7,9 @@
 //
 
 import UIKit
+import FBSDKShareKit
 import Alamofire
+import ARFacebookShareKitActivity
 
 class NewsEViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
@@ -18,8 +20,13 @@ class NewsEViewController: UIViewController, UITableViewDataSource, UITableViewD
     var newsData:[NSDictionary] = []
     var titleChosen = ""
     var dateChosen = ""
+    var authorChosen = ""
     var contentChosen = ""
     var imageChosen = ""
+    let today = String(Int(NSDate().timeIntervalSince1970))
+    let dateFormatter = DateFormatter()
+    var indexChosen = 0
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,7 +37,13 @@ class NewsEViewController: UIViewController, UITableViewDataSource, UITableViewD
         self.tabBarController?.tabBar.items?[2].image = UIImage(named: "donate_icon.png")!.withRenderingMode(.alwaysOriginal)
         
         // Do any additional setup after loading the view.
+        
+        dateFormatter.dateStyle = .medium
+        
+        dateFormatter.timeStyle = .medium
+        
         //        storeData()
+        
         fetchData()
         
         interfacelayout()
@@ -69,75 +82,79 @@ class NewsEViewController: UIViewController, UITableViewDataSource, UITableViewD
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         //This is height of a cell in a table
         
-        if indexPath.row == 0 {
-            
-            return 206.0
-            
-        }
-        else {
-            
-            return 110.0
-            
-        }
+            return 330.0
+
     }
     
     // create a cell for each table view row
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        //This is for the cells except for the top one
-        if indexPath.row != 0 {
+        let identifier = "NewsETableViewCell"
+        
+        let object = self.userDict[indexPath.row]
+        
+        var day_diff  = 0
+        var hour_diff = 0
+        var min_diff = 0
+        
+        var cell: NewsETableViewCell! = tbl_News.dequeueReusableCell(withIdentifier: identifier) as? NewsETableViewCell
+        
+        if cell == nil {
             
-            let identifier = "NewsCTableViewCell"
+            tableView.register(UINib(nibName: "NewsETableViewCell", bundle: nil), forCellReuseIdentifier: identifier)
             
-            let object = self.userDict[indexPath.row]
-            
-            var cell: NewsCTableViewCell! = tbl_News.dequeueReusableCell(withIdentifier: identifier) as? NewsCTableViewCell
-            
-            if cell == nil {
-                
-                tableView.register(UINib(nibName: "NewsCTableViewCell", bundle: nil), forCellReuseIdentifier: identifier)
-                
-                cell = tbl_News.dequeueReusableCell(withIdentifier: identifier) as? NewsCTableViewCell
-                
-            }
-            
-            cell.lb_Title.text = object["title"]! as? String        //This is a title of a news
-            
-            cell.lb_Date.text = unixtoDate(timeResult: Double((object["date"]! as? String)!)!)      //This is a date for a news
-            
-            getImage(imageurl: (object["image"]! as? String)!, imageview: cell.img_Top)     //This is a image for a event
-            
-            cell.backgroundColor = UIColor.clear
-            
-            return cell
-        }
-            
-        else {      //This is for the top cell
-            
-            let identifier = "NewsDTableViewCell"
-            
-            let object = self.userDict[indexPath.row]
-            
-            var cell: NewsDTableViewCell! = tbl_News.dequeueReusableCell(withIdentifier: identifier) as? NewsDTableViewCell
-            
-            if cell == nil {
-                
-                tableView.register(UINib(nibName: "NewsDTableViewCell", bundle: nil), forCellReuseIdentifier: identifier)
-                
-                cell = tbl_News.dequeueReusableCell(withIdentifier: identifier) as? NewsDTableViewCell
-                
-            }
-            
-            cell.lb_Title.text = object["title"]! as? String        //This is a title of a news
-            
-            cell.lb_Date.text = unixtoDate(timeResult: Double((object["date"]! as? String)!)!)      //This is a date for a event
-            
-            getImage(imageurl: (object["image"]! as? String)!, imageview: cell.img_Back)        //This is a image for a event
-            
-            return cell
+            cell = tbl_News.dequeueReusableCell(withIdentifier: identifier) as? NewsETableViewCell
             
         }
         
+        cell.lb_Title.text = object["title"]! as? String        //This is a title of a news
+        
+        cell.lb_Author.text = object["author"]! as? String      //This is a author of a news
+        
+        //This is for calculating date
+        let beginDate = unixtoDate(timeResult: Double((object["date"]! as? String)!)!)
+        
+        let endDate = unixtoDate(timeResult: Double(today)!)
+        let startDateTime = dateFormatter.date(from: beginDate) //according to date format your date string
+        let endDateTime = dateFormatter.date(from: endDate) //according to date format your date string
+        let dateComponentsFormatter = DateComponentsFormatter()
+        dateComponentsFormatter.allowedUnits = [NSCalendar.Unit.minute,NSCalendar.Unit.hour,NSCalendar.Unit.day]
+        
+        let interval = endDateTime!.timeIntervalSince(startDateTime!)
+        var diff = dateComponentsFormatter.string(from: interval)!
+        if (diff.contains("d"))
+        {
+            let day = diff.substring(to: (diff.range(of: "d")?.lowerBound)!)
+            
+            day_diff  = Int(day)!
+            cell.lb_Date.text = "\(day_diff)d ago"
+            
+            diff = diff.substring(from:(diff.range(of : " ")?.upperBound )!)
+            print(diff)
+        }
+        else {
+            if (diff.contains(":")){
+                let hour = diff.substring(to: (diff.range(of : ":")?.lowerBound )!)
+                hour_diff  = Int(hour)!
+                cell.lb_Date.text = "\(hour_diff)h ago"
+            }
+            else {
+                min_diff  = Int(diff)!
+                cell.lb_Date.text = "\(min_diff)m ago"
+            }
+            
+        }
+//        cell.lb_Date.text = unixtoDate(timeResult: Double((object["date"]! as? String)!)!)      //This is a date for a event
+        
+        getImage(imageurl: (object["image"]! as? String)!, imageview: cell.img_Back)        //This is a image for a event
+        
+        //Action when sharing button is pressed
+//        cell.bt_Share.addTarget(self, action: #selector(onShareButton), for: .touchUpInside)
+        
+//        cell.bt_Share.tag = indexPath.row
+        
+        return cell
+
     }
     
     // method to run when table view cell is tapped
@@ -152,10 +169,75 @@ class NewsEViewController: UIViewController, UITableViewDataSource, UITableViewD
         
         imageChosen = (userDict[indexPath.row]["image"]! as? String)!
         
+        authorChosen = (userDict[indexPath.row]["author"]! as? String)!
+        
+        indexChosen = indexPath.row
+        
         self.transitionViewController()
         
         print("You tapped cell number \(indexPath.row).")
         
+    }
+    
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        
+        titleChosen = (userDict[indexPath.row]["title"]! as? String)!
+        
+        dateChosen = unixtoDate(timeResult: Double((userDict[indexPath.row]["date"]! as? String)!)!)
+        
+        contentChosen = (userDict[indexPath.row]["content"]! as? String)!
+        
+        imageChosen = (userDict[indexPath.row]["image"]! as? String)!
+        
+        authorChosen = (userDict[indexPath.row]["author"]! as? String)!
+        
+        let share = UITableViewRowAction(style: .normal, title: "Share") { action, index in
+            
+            // text to share
+            let text = "\(self.titleChosen)\n\(self.dateChosen)\n\(self.contentChosen)"
+            
+            // set up activity view controller
+            let textToShare = [ text ]
+            
+            let applicationActivities = [Share()]
+            
+            let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: [ShareLinkActivity()])
+            
+            activityViewController.popoverPresentationController?.sourceView = self.view // so that iPads won't crash
+            
+            // exclude some activity types from the list (optional)
+            activityViewController.excludedActivityTypes = [ UIActivityType.airDrop ]
+            
+            activityViewController.completionWithItemsHandler = self.completionHandler
+            
+            // present the view controller
+            self.present(activityViewController, animated: true, completion: nil)
+
+        }
+        
+        share.backgroundColor = .gray
+        
+        return [share]
+    }
+    
+    func completionHandler(activityType: UIActivityType?, shared: Bool, items: [Any]?, error: Error?) {
+        if (shared) {
+            print("Cool user shared some stuff")
+            if activityType == UIActivityType.postToTwitter {
+                print("twitter")
+            }
+            
+            if activityType == UIActivityType.mail {
+                print("mail")
+            }
+            
+            if activityType == UIActivityType.postToFacebook {
+                print("-0-0-0-0-0-0-0-0-0-0FB")
+            }
+        }
+        else {
+            print("Bad user canceled sharing :(")
+        }
     }
     
     func fetchData() {
@@ -177,7 +259,7 @@ class NewsEViewController: UIViewController, UITableViewDataSource, UITableViewD
             
             if let json = response.result.value as? Dictionary<String, AnyObject> {
                 
-                print("&&&\(json)")
+                print("The data about getting from News:\n\(json)")
                 
                 if let data = json["data"] as? Array<AnyObject> {
                     
@@ -185,7 +267,7 @@ class NewsEViewController: UIViewController, UITableViewDataSource, UITableViewD
                     
                     for myEntry in data {
                         
-                        print("&&&\(myEntry)")
+                        print("One of the News:\n\(myEntry)")
                         
                         if let dataTitle = myEntry["title"] as? String {
                             
@@ -195,7 +277,11 @@ class NewsEViewController: UIViewController, UITableViewDataSource, UITableViewD
                                     
                                     if let dataImage = myEntry["image"] as? String {
                                         
-                                            dataCell = ["title": dataTitle , "date": dataDate , "content": dataContent , "image": dataImage]
+                                        if let dataAuthor = myEntry["author"] as? String {
+                                        
+                                            dataCell = ["title": dataTitle , "date": dataDate , "content": dataContent , "image": dataImage, "author": dataAuthor]
+                                            
+                                        }
                                         
                                     }
                                 }
@@ -235,7 +321,33 @@ class NewsEViewController: UIViewController, UITableViewDataSource, UITableViewD
         
         vc.imagePassed = imageChosen
         
+        vc.authorPassed = authorChosen
+        
+        vc.dictPassed = userDict
+        
+        vc.indexNum = indexChosen
+        
         self.navigationController?.pushViewController(vc, animated: true)
+        
+    }
+    
+    func onShareButton(sender: UIButton) {  //This is the case when the share button is pressed
+        
+        // text to share
+        let text = "\(titleChosen)\n\(dateChosen)\n\(contentChosen)"
+        
+        // set up activity view controller
+        let textToShare = [ text ]
+        
+        let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
+        
+        activityViewController.popoverPresentationController?.sourceView = self.view // so that iPads won't crash
+        
+        // exclude some activity types from the list (optional)
+        activityViewController.excludedActivityTypes = [ UIActivityType.airDrop ]
+        
+        // present the view controller
+        self.present(activityViewController, animated: true, completion: nil)
         
     }
     
@@ -292,5 +404,68 @@ class NewsEViewController: UIViewController, UITableViewDataSource, UITableViewD
         return dateFormatter.string(from: date as Date)
         
     }
+    
+    func activityViewController(_ activityViewController: UIActivityViewController, itemForActivityType activityType: UIActivityType?) -> Any? {
+        if (activityType == .postToFacebook) {
+            dismiss(animated: true) { _ in }
+            perform(#selector(self.postToFacebook), with: self, afterDelay: 1.0)
+        }
+        return nil
+    }
 
+    func postToFacebook() {
+        let content = FBSDKShareLinkContent()
+        content.quote = "dfdfdfdfdfdfdfdfdfd"
+        content.contentURL = URL(string: "https://developers.facebook.com")
+        let dialog = FBSDKShareDialog()
+        dialog.fromViewController = self
+        dialog.shareContent = content
+        dialog.mode = .shareSheet
+        dialog.show()
+    }
+
+}
+
+class Share: UIActivity {
+    var navController: UINavigationController = UINavigationController()
+     override func canPerform(withActivityItems activityItems: [Any]) -> Bool {
+        NSLog("%@", #function)
+        return true
+    }
+    
+     override func prepare(withActivityItems activityItems: [Any]) {
+        NSLog("%@", #function)
+    }
+    
+      override func perform() {
+        // Todo: handle action:
+        NSLog("%@", #function)
+        let content = FBSDKShareLinkContent()
+        content.quote = "dfdfdfdfdfdfdfdfdfd"
+        content.contentURL = URL(string: "https://developers.facebook.com")
+        let dialog = FBSDKShareDialog()
+//        dialog.fromViewController = self
+        dialog.shareContent = content
+        dialog.mode = .shareSheet
+        dialog.show()
+        self.activityDidFinish(true)
+    }
+    
+    
+//    override func activityType() -> String? {
+//        return "TestActionss.Favorite"
+//    }
+//    
+//    override func activityTitle() -> String? {
+//        return "Add to Favorites"
+//    }
+    
+//    override func activityViewController() -> UIViewController? {
+//        NSLog("%@", #function)
+//        return nil
+//    }
+    
+//    override func activityImage() -> UIImage? {
+//        return UIImage(named: "favorites_action")
+//    }
 }
