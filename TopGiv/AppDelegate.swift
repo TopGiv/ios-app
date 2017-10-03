@@ -12,6 +12,7 @@ import GoogleSignIn
 import FBSDKLoginKit
 import Stripe
 import CoreData
+import Alamofire
 
 
 @UIApplicationMain
@@ -99,6 +100,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         else {
             
             // Perform any operations on signed in user here.
+            
             let userId = user.userID                  // For client-side use only!
             
             let idToken = user.authentication.idToken // Safe to send to the server
@@ -125,6 +127,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         }
         
     }
+    
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
+        
+        if (userActivity.activityType == NSUserActivityTypeBrowsingWeb) {
+            
+            let url: URL? = userActivity.webpageURL
+            
+            let storyBoard = UIStoryboard(name: "Main", bundle: nil)
+            
+            let navigationController: UINavigationController? = (window?.rootViewController as? UINavigationController)
+            
+            if (url?.pathComponents.contains("login"))! {
+                navigationController?.pushViewController(storyBoard.instantiateViewController(withIdentifier: "ProfileInfoViewController"), animated: true)
+                
+            }
+            
+        }
+        
+        return true
+        
+    }
 
+    func shouldAutorotate() -> Bool {
+        return false
+    }
+    
+    func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
+        return UIInterfaceOrientationMask.portrait
+    }
 }
 
