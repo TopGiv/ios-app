@@ -25,6 +25,7 @@ class AddEventViewController: FormViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        
         //This is for Navigation Bar
         let navBar: UINavigationBar = UINavigationBar(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 64))
         
@@ -34,7 +35,7 @@ class AddEventViewController: FormViewController {
         
         let addItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.save, target: nil, action: #selector(AddEventViewController.onAdd))        //'Add' button
         
-        let cancelItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.cancel, target: nil, action: #selector(AddEventViewController.onCancel))        //Cancel button
+        let cancelItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.cancel, target: nil, action: #selector(AddEventViewController.onCancel))        //'Cancel' button
         
         navItem.rightBarButtonItem = addItem
         
@@ -50,6 +51,7 @@ class AddEventViewController: FormViewController {
                 
             }.onSelected { row in
                 // Do Something
+                
         }
         
         //This is the title of the event
@@ -61,6 +63,7 @@ class AddEventViewController: FormViewController {
                 
             }.onSelected { row in
                 // Do Something
+                
         }
         
         //This is the place of the event
@@ -72,6 +75,7 @@ class AddEventViewController: FormViewController {
                 
             }.onSelected { row in
                 // Do Something
+                
         }
         
         //This is for frequency
@@ -93,6 +97,7 @@ class AddEventViewController: FormViewController {
                 
             }.onValueChanged { item in
                 // Do Something
+                
         }
         
         //This is for all-day or not
@@ -103,7 +108,6 @@ class AddEventViewController: FormViewController {
             }.configure { row in
                 
             }.onSwitchChanged { row in
-                
                 // Do something
                 self.isAllDay = row
                 
@@ -117,6 +121,7 @@ class AddEventViewController: FormViewController {
             }.configure { row in
                 
             }.onDateChanged { item in
+                // Do something
                 
         }
         
@@ -128,13 +133,17 @@ class AddEventViewController: FormViewController {
             }.configure { row in
                 
             }.onDateChanged { item in
+                // Do something
                 
         }
         
         //This is for the alert
         let inlinePickerAlert = InlinePickerRowFormer<FormInlinePickerCell, Int>() {
+            
             $0.titleLabel.text = "Alert"
+            
             }.configure { row in
+                
                 row.pickerItems.append(InlinePickerItem(title: "None"))
                 
                 row.pickerItems.append(InlinePickerItem(title: "At time of the event"))
@@ -149,6 +158,7 @@ class AddEventViewController: FormViewController {
                 
             }.onValueChanged { item in
                 // Do Something
+                
         }
         
         //This is for URL
@@ -159,6 +169,7 @@ class AddEventViewController: FormViewController {
                 
             }.onSelected { row in
                 // Do Something
+                
         }
         
         //This is for comments
@@ -169,14 +180,17 @@ class AddEventViewController: FormViewController {
                 
             }.onSelected { row in
                 // Do something
+                
         }
         
         //Header
         let header = LabelViewFormer<FormLabelHeaderView>() { view in
+            
         }
         
         //Footer
         let footer = LabelViewFormer<FormLabelFooterView>() { view in
+            
         }
         
         let sectionTop = SectionFormer(rowFormer: labelSpace).set(headerViewFormer: header)     //This is for space
@@ -232,6 +246,22 @@ class AddEventViewController: FormViewController {
             
             // This happens on first-run
             print("Not determined")
+            
+            eventStore.requestAccess(to: EKEntityType.event, completion:
+               
+                {(accessGranted: Bool, error: Error?) in
+               
+                    if accessGranted {
+             
+                        self.insertEvent(eventStore: eventStore)
+         
+                    } else {
+           
+                        print("Access denied")
+               
+                    }
+       
+            })
             
             break
             
@@ -303,6 +333,7 @@ class AddEventViewController: FormViewController {
         self.insertEvent(eventStore: eventStore)        //This is the actoiin of storing the event to a calendar
         
         self.dismiss(animated: true) {          //Go back to the previous view
+            
         }
         
     }
@@ -311,6 +342,7 @@ class AddEventViewController: FormViewController {
         //This is when Cancel button is clicked
         
         self.dismiss(animated: true) {          //Go back to the previous view
+            
         }
         
     }

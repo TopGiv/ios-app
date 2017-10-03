@@ -16,12 +16,13 @@ class EventGViewController: UIViewController, UITableViewDataSource, UITableView
     
     var userDict:[NSDictionary] = []
     var eventData:[NSDictionary] = []
-    
     var titleChosen = ""
     var dateChosen = ""
     var contentChosen = ""
     var imageChosen = ""
     var placeChosen = ""
+    var indexChosen = 0
+    var indexButtonChosen = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -62,7 +63,7 @@ class EventGViewController: UIViewController, UITableViewDataSource, UITableView
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         //This is height of a cell in a table
-        return 385
+        return 345
         
     }
     
@@ -84,12 +85,10 @@ class EventGViewController: UIViewController, UITableViewDataSource, UITableView
         }
         
         cell.lb_Title.text = object["title"]! as? String        //This is a title of an event
+        if (object["image"] != nil) {
+            getImage(imageurl: (object["image"]! as? String)!, imageview: cell.img_Back)        //This is an image for an event
+        }
         
-        getImage(imageurl: (object["image"]! as? String)!, imageview: cell.img_Back)        //This is an image for an event
-        
-        cell.lb_Mark.layer.cornerRadius = 10
-        
-        cell.lb_Mark.clipsToBounds = true
         
         cell.lb_Place.text = object["place"]! as? String        //This is a place for an event
         
@@ -108,19 +107,27 @@ class EventGViewController: UIViewController, UITableViewDataSource, UITableView
         
         cell.lb_Date.text = localDate
         
-        getImage(imageurl: (object["image"]! as? String)!, imageview: cell.img_Thumbnail)       //This is a thumbnail for an event
-        
         cell.backgroundColor = UIColor.clear
         
-        //Action when sharing button is pressed
-        cell.bt_Share.addTarget(self, action: #selector(onShareButton), for: .touchUpInside)
-        
-        cell.bt_Share.tag = indexPath.row
+//        //Action when sharing button is pressed
+//        cell.bt_Share.addTarget(self, action: #selector(onShareButton), for: .touchUpInside)
+//        
+//        cell.bt_Share.tag = indexPath.row
+//        
+//        //Action when donation button is pressed
+//        cell.bt_Donate.addTarget(self, action: #selector(onDonationButton), for: .touchUpInside)
+//        
+//        cell.bt_Donate.tag = indexPath.row
+//        
+//        //Action when calendar button is pressed
+//        cell.bt_Calendar.addTarget(self, action: #selector(onCalendarButton), for: .touchUpInside)
+//        
+//        cell.bt_Calendar.tag = indexPath.row
         
         //Action when dislike button is pressed
-        cell.bt_Dislike.addTarget(self, action: #selector(onDislikeButton), for: .touchUpInside)
+//        cell.bt_Dislike.addTarget(self, action: #selector(onDislikeButton), for: .touchUpInside)
         
-        cell.bt_Dislike.tag = indexPath.row
+//        cell.bt_Dislike.tag = indexPath.row
         
         print(indexPath.row)
         
@@ -142,6 +149,8 @@ class EventGViewController: UIViewController, UITableViewDataSource, UITableView
         imageChosen = (userDict[indexPath.row]["image"]! as? String)!
         
         placeChosen = (userDict[indexPath.row]["place"]! as? String)!
+        
+        indexChosen = indexPath.row
         
         self.transitionViewController()
         
@@ -167,7 +176,7 @@ class EventGViewController: UIViewController, UITableViewDataSource, UITableView
             
             if let json = response.result.value as? Dictionary<String, AnyObject> {
                 
-                print("&&&\(json)")
+                print("The data about getting from Event:\n\(json)")
                 
                 if let data = json["data"] as? Array<AnyObject> {
                     
@@ -175,7 +184,7 @@ class EventGViewController: UIViewController, UITableViewDataSource, UITableView
                     
                     for myEntry in data {
                         
-                        print("&&&\(myEntry)")
+                        print("One of the events:\n\(myEntry)")
                         
                         if let dataTitle = myEntry["title"] as? String {
                             
@@ -230,6 +239,10 @@ class EventGViewController: UIViewController, UITableViewDataSource, UITableView
         
         vc.placePassed = placeChosen
         
+        vc.dictPassed = userDict
+        
+        vc.indexNum = indexChosen
+        
         self.navigationController?.pushViewController(vc, animated: true)
         
     }
@@ -245,7 +258,8 @@ class EventGViewController: UIViewController, UITableViewDataSource, UITableView
         
     }
     
-    func onShareButton(sender: UIButton) {  //This is the case when the share button is pressed
+    func onShareButton(sender: UIButton) {
+        //This is the case when the share button is pressed
         
         // text to share
         let text = "\(titleChosen)\n\(placeChosen)\n\(dateChosen)\n\(contentChosen)"
@@ -258,14 +272,77 @@ class EventGViewController: UIViewController, UITableViewDataSource, UITableView
         activityViewController.popoverPresentationController?.sourceView = self.view // so that iPads won't crash
         
         // exclude some activity types from the list (optional)
-        activityViewController.excludedActivityTypes = [ UIActivityType.airDrop, UIActivityType.postToFacebook,  UIActivityType.postToTwitter, UIActivityType.mail, UIActivityType.message]
-        
+        activityViewController.excludedActivityTypes = [ UIActivityType.airDrop ]
+
         // present the view controller
         self.present(activityViewController, animated: true, completion: nil)
         
     }
     
-    func onDislikeButton(sender: UIButton) {   //This is the case when the dislike button is pressed
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        
+        titleChosen = (userDict[indexPath.row]["title"]! as? String)!
+        
+        dateChosen = unixtoDate(timeResult: Double((userDict[indexPath.row]["date"]! as? String)!)!)
+        
+        contentChosen = (userDict[indexPath.row]["content"]! as? String)!
+        
+        imageChosen = (userDict[indexPath.row]["image"]! as? String)!
+        
+        let share = UITableViewRowAction(style: .normal, title: "Share") { action, index in
+            
+            // text to share
+            let text = "\(self.titleChosen)\n\(self.dateChosen)\n\(self.contentChosen)"
+            
+            // set up activity view controller
+            let textToShare = [ text ]
+            
+            let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
+            
+            activityViewController.popoverPresentationController?.sourceView = self.view // so that iPads won't crash
+            
+            // exclude some activity types from the list (optional)
+            activityViewController.excludedActivityTypes = [ UIActivityType.airDrop ]
+            
+            // present the view controller
+            self.present(activityViewController, animated: true, completion: nil)
+            
+        }
+        
+        share.backgroundColor = .gray
+        
+        return [share]
+    }
+    
+    func onCalendarButton(sender: UIButton) {
+        //This is the case when the share button is pressed
+        
+        let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        
+        let vc = storyBoard.instantiateViewController(withIdentifier: "AddEventViewController")
+            as! AddEventViewController
+        
+        vc.titlePassed = (userDict[sender.tag]["title"]! as? String)!
+        
+        vc.placePassed = (userDict[sender.tag]["place"]! as? String)!
+        
+        self.present(vc, animated: true)
+        
+    }
+    
+    func onDonationButton(sender: UIButton) {
+        //This is the case when the donation button is pressed
+        
+        let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        
+        let vc = storyBoard.instantiateViewController(withIdentifier: "DonationIndexViewController") as! DonationIndexViewController
+        
+        self.navigationController?.pushViewController(vc, animated: true)
+        
+    }
+    
+    func onDislikeButton(sender: UIButton) {
+        //This is the case when the dislike button is pressed
         
         let rowNum = sender.tag
         
@@ -306,6 +383,7 @@ class EventGViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     func unixtoDate(timeResult: Double) -> String {
+        //This is for converting the received date to the ordinary one
         
         let date = NSDate(timeIntervalSince1970: timeResult)
         

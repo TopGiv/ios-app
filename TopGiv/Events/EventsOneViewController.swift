@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import MapKit
 
 
 class EventsOneViewController: UIViewController {
@@ -19,18 +20,39 @@ class EventsOneViewController: UIViewController {
     @IBOutlet weak var lb_Place: UILabel!
     @IBOutlet weak var lb_Date: UILabel!
     @IBOutlet weak var lb_Title: UILabel!
+    @IBOutlet weak var ai_Loading: UIActivityIndicatorView!
     
     var contentsPassed = ""
     var datePassed = ""
     var titlePassed = ""
     var imagePassed = ""
     var placePassed = ""
+    var dictPassed:[NSDictionary] = []
+    var indexNum = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        
+        ai_Loading.isHidden = false
+        
+        ai_Loading.startAnimating()
+        
+        let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(self.respondToSwipeGesture))
+        
+        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(self.respondToSwipeGesture))
+        
+        swipeLeft.direction = UISwipeGestureRecognizerDirection.right
+        
+        swipeRight.direction = UISwipeGestureRecognizerDirection.left
+        
+        self.view.addGestureRecognizer(swipeLeft)
+        
+        self.view.addGestureRecognizer(swipeRight)
+        
         interfacelayout()
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -39,8 +61,8 @@ class EventsOneViewController: UIViewController {
     }
     
     @IBAction func onAddCalendar(_ sender: Any) {
-        
         //This is when Add button is clicked
+        
         transitionViewController()
         
     }
@@ -54,13 +76,13 @@ class EventsOneViewController: UIViewController {
         
         // set up activity view controller
         let textToShare = [ text ]
-        
+                
         let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
         
         activityViewController.popoverPresentationController?.sourceView = self.view // so that iPads won't crash
         
         // exclude some activity types from the list (optional)
-        activityViewController.excludedActivityTypes = [ UIActivityType.airDrop, UIActivityType.postToFacebook,  UIActivityType.postToTwitter, UIActivityType.mail, UIActivityType.message]
+        activityViewController.excludedActivityTypes = [ UIActivityType.airDrop ]
         
         // present the view controller
         self.present(activityViewController, animated: true, completion: nil)
@@ -77,8 +99,35 @@ class EventsOneViewController: UIViewController {
     }
     */
     
+    func respondToSwipeGesture(gesture: UIGestureRecognizer) {
+        
+        if let swipeGesture = gesture as? UISwipeGestureRecognizer {
+            
+            switch swipeGesture.direction {
+                
+            case UISwipeGestureRecognizerDirection.right:
+                self.navigationController?.popViewController(animated: true)
+                print("Swiped Previous")
+                
+            case UISwipeGestureRecognizerDirection.left:
+                self.nextEvent()
+                print("Swiped Next")
+                
+            default:
+                break
+                
+            }
+            
+        }
+        
+    }
+    
     func interfacelayout() {
         //This is for the Interface
+        
+        let tapL = UITapGestureRecognizer(target: self, action: #selector(self.tapLocation))
+        
+        lb_Place.addGestureRecognizer(tapL)        //This is when Web URL is clicked
  
         tv_Content.text = contentsPassed        //This is a description of a event
         
@@ -141,11 +190,6 @@ class EventsOneViewController: UIViewController {
         
     }
     
-    @IBAction func onBack(_ sender: Any) {
-        
-        self.navigationController?.popViewController(animated: true)
-        
-    }
     
     func getImage (imageurl: String, imageview: UIImageView) {
         //This is for loading images from the server
@@ -166,13 +210,99 @@ class EventsOneViewController: UIViewController {
                         
                         imageview.image = image
                         
+                        self.ai_Loading.isHidden = true
+                        
+                        self.ai_Loading.stopAnimating()
+                        
                     })
+                    
                 }
+                
             }
+            
         })
         
         task.resume()
         
+    }
+    
+    func nextEvent() {
+        
+        let num = dictPassed.count
+        
+        if (indexNum < num - 1) {
+            indexNum = indexNum + 1
+        }
+        else {
+            indexNum = 0
+        }
+        
+        titlePassed = (dictPassed[indexNum]["title"]! as? String)!
+        
+        datePassed = unixtoDate(timeResult: Double((dictPassed[indexNum]["date"]! as? String)!)!)
+        
+        contentsPassed = (dictPassed[indexNum]["content"]! as? String)!
+        
+        imagePassed = (dictPassed[indexNum]["image"]! as? String)!
+        
+        placePassed = (dictPassed[indexNum]["place"]! as? String)!
+        
+        interfacelayout()
+    
+    }
+    
+    func unixtoDate(timeResult: Double) -> String {
+        //This is for converting the received date to the ordinary one
+        
+        let date = NSDate(timeIntervalSince1970: timeResult)
+        
+        let dateFormatter = DateFormatter()
+        
+        dateFormatter.timeStyle = DateFormatter.Style.medium //Set time style
+        
+        dateFormatter.dateStyle = DateFormatter.Style.medium //Set date style
+        
+        return dateFormatter.string(from: date as Date)
+        
+    }
+    
+    func coordinates(forAddress address: String, completion: @escaping (CLLocationCoordinate2D?) -> Void) {
+        let geocoder = CLGeocoder()
+        geocoder.geocodeAddressString(address) {
+            (placemarks, error) in
+            guard error == nil else {
+                print("Geocoding error: \(error!)")
+                completion(nil)
+                return
+            }
+            completion(placemarks?.first?.location?.coordinate)
+        }
+    }
+    
+    func openMapForPlace(latitude: CLLocationDegrees, longitude: CLLocationDegrees) {
+        
+        let regionDistance:CLLocationDistance = 1
+        let coordinates = CLLocationCoordinate2DMake(latitude, longitude)
+        let regionSpan = MKCoordinateRegionMakeWithDistance(coordinates, regionDistance, regionDistance)
+        let options = [
+            MKLaunchOptionsMapCenterKey: NSValue(mkCoordinate: regionSpan.center),
+            MKLaunchOptionsMapSpanKey: NSValue(mkCoordinateSpan: regionSpan.span)
+        ]
+        let placemark = MKPlacemark(coordinate: coordinates, addressDictionary: nil)
+        let mapItem = MKMapItem(placemark: placemark)
+        mapItem.name = lb_Place.text
+        mapItem.openInMaps(launchOptions: options)
+    }
+    
+    func tapLocation() {
+        coordinates(forAddress: lb_Place.text!) {
+            (location) in
+            guard let location = location else {
+                // Handle error here.
+                return
+            }
+            self.openMapForPlace(latitude: location.latitude, longitude: location.longitude)
+        }
     }
 
 }
