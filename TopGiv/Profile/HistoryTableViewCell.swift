@@ -13,6 +13,7 @@ class HistoryTableViewCell: UITableViewCell {
     @IBOutlet var lb_Category: UILabel!
     @IBOutlet var lb_Date: UILabel!
     @IBOutlet var lb_Amount: UILabel!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
