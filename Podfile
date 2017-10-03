@@ -32,6 +32,9 @@ target 'TopGiv' do
   pod 'AFNetworking'
   pod 'SwiftyJSON'
   pod 'Alamofire'
+  pod 'AZDialogView'
+  pod "ARFacebookShareKitActivity"
+
 
   target 'TopGivTests' do
     inherit! :search_paths
