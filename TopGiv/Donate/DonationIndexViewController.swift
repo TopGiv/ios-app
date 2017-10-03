@@ -9,10 +9,11 @@
 import UIKit
 import AAPickerView
 
-class DonationIndexViewController: UIViewController {
+class DonationIndexViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
 
-    var donationTitle = "General Fund"
-    @IBOutlet var pv_Fund: AAPickerView!
+    var categoryPicker: UIPickerView!
+    let stringData = ["Minds in Motion","The school of Richmond Ballet","Professional Company and Performances","General Fund"]
+    
     @IBOutlet weak var bt_Custom: UIButton!
     @IBOutlet weak var bt_100: UIButton!
     @IBOutlet weak var bt_50: UIButton!
@@ -21,13 +22,25 @@ class DonationIndexViewController: UIViewController {
     @IBOutlet weak var bt_5: UIButton!
     @IBOutlet var uv_Contents: UIView!
     @IBOutlet weak var uv_Amounts: UIView!
+    @IBOutlet weak var tf_Category: UITextField!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Do any additional setup after loading the view.
         
-        configPicker()
+        //This for showing Donation button on the tab bar
+        self.tabBarController?.tabBar.items?[2].selectedImage = UIImage(named: "donate_icon.png")!.withRenderingMode(.alwaysOriginal)
+        
+        self.tabBarController?.tabBar.items?[2].image = UIImage(named: "donate_icon.png")!.withRenderingMode(.alwaysOriginal)
+        
+        categoryPicker = UIPickerView()
+        
+        categoryPicker.dataSource = self
+        categoryPicker.delegate = self
+        tf_Category.inputView = categoryPicker
+        tf_Category.text = stringData[0]
+        
         interfacelayout()
 
     }
@@ -158,37 +171,8 @@ class DonationIndexViewController: UIViewController {
         
     }
     
-    func configPicker() {
-        //This is for choosing the form of donation
-        
-        pv_Fund.pickerType = .StringPicker
-        
-        let stringData = ["Minds in Motion","The school of Richmond Ballet","Professional Company and Performances","General Fund"]
-        
-        pv_Fund.stringPickerData = stringData
-        
-        pv_Fund.pickerRow.font = UIFont(name: "American Typewriter", size: 30)
-        
-        pv_Fund.toolbar.barTintColor = .darkGray
-        
-        pv_Fund.toolbar.tintColor = .black
-        
-        pv_Fund.text = "General Fund"
-        
-        pv_Fund.textColor = .darkGray
-                
-        pv_Fund.stringDidChange = { index in
-            
-            print("selectedString ", stringData[index])
-            
-            self.donationTitle = stringData[index]
-            
-        }
-        
-    }
-    
+    //This is for the interface
     func interfacelayout() {
-        //This is for the interface
         
         self.navigationController?.navigationBar.topItem?.title = "DONATE"
         
@@ -307,10 +291,27 @@ class DonationIndexViewController: UIViewController {
         
         vc.amountPassed = amount        //Amount to be donated
         
-        vc.titlePassed = donationTitle      //Form of donation
+        vc.titlePassed = tf_Category.text!      //Form of donation
         
         self.navigationController?.pushViewController(vc, animated: true)
         
+    }
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int{
+        return stringData.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return stringData[row]
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int){
+        tf_Category.text = stringData[row]
+        self.view.endEditing(true)
     }
     
 }

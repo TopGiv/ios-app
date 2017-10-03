@@ -9,6 +9,8 @@
 import UIKit
 import PassKit
 import Stripe
+import Alamofire
+import AZDialogView
 
 extension DonationAmountViewController: PKPaymentAuthorizationViewControllerDelegate {
     //This is for default Apple pay
@@ -33,12 +35,17 @@ class DonationAmountViewController: UIViewController {
     let ApplePaySwagMerchantID = "merchant.com.topgiv.merchant" // Fill in your merchant ID here!
     var amountPassed = 0
     var titlePassed = ""
+    let primaryColor = #colorLiteral(red: 0.6271930337, green: 0.3653797209, blue: 0.8019730449, alpha: 1)
+    let primaryColorDark = #colorLiteral(red: 0.5373370051, green: 0.2116269171, blue: 0.7118118405, alpha: 1)
+    var pledgeFrequency = ""
+    var cardChoice = ""
 
     @IBOutlet weak var bt_Card: UIButton!
     @IBOutlet weak var v_Container: UIView!
     @IBOutlet weak var bt_Applepay: UIButton!
     @IBOutlet var lb_Title: UILabel!
     @IBOutlet var lb_Amount: UILabel!
+    @IBOutlet weak var bt_Pledge: UIButton!
     
     
     override func viewDidLoad() {
@@ -127,6 +134,7 @@ class DonationAmountViewController: UIViewController {
     
     
     func interfacelayout() {
+        
         //This is for the Interface
         
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
@@ -145,15 +153,19 @@ class DonationAmountViewController: UIViewController {
         
         bt_Card.clipsToBounds = true
         
+        bt_Pledge.layer.cornerRadius = 20
+        
+        bt_Pledge.clipsToBounds = true
+        
         v_Container.layer.cornerRadius = 7
         
         v_Container.clipsToBounds = true
         
-        v_Container.backgroundColor = .clear
+//        v_Container.backgroundColor = .clear
         
-        v_Container.layer.borderWidth = 1
+//        v_Container.layer.borderWidth = 1
         
-        v_Container.layer.borderColor = UIColor.gray.cgColor
+//        v_Container.layer.borderColor = UIColor.gray.cgColor
         
         lb_Amount.text = "$ \(amountPassed)"
         
@@ -162,8 +174,8 @@ class DonationAmountViewController: UIViewController {
     }
     
     func transitionViewController() {
-        
         //This is for transition of views
+        
         let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
         
         let vc = storyBoard.instantiateViewController(withIdentifier: "CardDonateViewController") as! CardDonateViewController
@@ -175,5 +187,105 @@ class DonationAmountViewController: UIViewController {
         self.navigationController?.pushViewController(vc, animated: true)
         
     }
-
+    
+    @IBAction func onPledge(_ sender: Any) {
+        howOftenDialog()
+    }
+    
+    func howOftenDialog(){
+        let dialogController = AZDialogViewController(title: "How Often?", message: "")
+        dialogController.showSeparator = true
+        
+        dialogController.addAction(AZDialogAction(title: "Weekly", handler: { (dialog) -> (Void) in
+            dialog.removeAction(at: 0)
+            dialog.removeAction(at: 0)
+            dialog.removeAction(at: 0)
+            self.pledgeFrequency = "Weekly"
+            print(self.pledgeFrequency)
+            dialogController.title = "Pay by means of"
+            dialog.addAction(AZDialogAction(title: "CC") { (dialog) -> (Void) in
+                self.cardChoice = "CC"
+                print(self.cardChoice)
+                dialog.dismiss()
+            })
+            dialog.addAction(AZDialogAction(title: "Debit") { (dialog) -> (Void) in
+                self.cardChoice = "Debit"
+                print(self.cardChoice)
+                dialog.dismiss()
+            })
+            
+            dialog.contentOffset = self.view.frame.height / 2.0 - dialog.estimatedHeight / 2.0 - 16
+            
+        }))
+        
+        dialogController.addAction(AZDialogAction(title: "Monthly", handler: { (dialog) -> (Void) in
+            self.pledgeFrequency = "Monthly"
+            print(self.pledgeFrequency)
+            dialogController.title = "Pay by means of"
+            dialog.removeAction(at: 0)
+            dialog.removeAction(at: 0)
+            dialog.removeAction(at: 0)
+            dialog.addAction(AZDialogAction(title: "CC") { (dialog) -> (Void) in
+                self.cardChoice = "CC"
+                print(self.cardChoice)
+                dialog.dismiss()
+            })
+            dialog.addAction(AZDialogAction(title: "Debit") { (dialog) -> (Void) in
+                self.cardChoice = "Debit"
+                print(self.cardChoice)
+                dialog.dismiss()
+            })
+            
+            dialog.contentOffset = self.view.frame.height / 2.0 - dialog.estimatedHeight / 2.0 - 16
+        }))
+        
+        dialogController.addAction(AZDialogAction(title: "Annually", handler: { (dialog) -> (Void) in
+            self.pledgeFrequency = "Annually"
+            print(self.pledgeFrequency)
+            dialogController.title = "Pay by means of"
+            dialog.removeAction(at: 0)
+            dialog.removeAction(at: 0)
+            dialog.removeAction(at: 0)
+            dialog.addAction(AZDialogAction(title: "CC") { (dialog) -> (Void) in
+                self.cardChoice = "CC"
+                print(self.cardChoice)
+                dialog.dismiss()
+            })
+            dialog.addAction(AZDialogAction(title: "Debit") { (dialog) -> (Void) in
+                self.cardChoice = "Debit"
+                print(self.cardChoice)
+                dialog.dismiss()
+            })
+            
+            dialog.contentOffset = self.view.frame.height / 2.0 - dialog.estimatedHeight / 2.0 - 16
+            //dialog.spacing = 20
+        }))
+        
+        dialogController.cancelButtonStyle = { (button,height) in
+            button.tintColor = self.primaryColor
+            button.setTitle("CANCEL", for: [])
+            return true
+            
+        }
+        
+        dialogController.cancelEnabled = true
+        
+        dialogController.buttonStyle = { (button,height,position) in
+//            button.setBackgroundImage(UIImage.imageWithColor(self.primaryColorDark), for: .highlighted)
+            button.setTitleColor(UIColor.white, for: .highlighted)
+            button.setTitleColor(self.primaryColor, for: .normal)
+            button.layer.masksToBounds = true
+            button.layer.borderColor = self.primaryColor.cgColor
+        }
+        
+        dialogController.dismissDirection = .bottom
+        
+        dialogController.dismissWithOutsideTouch = true
+        
+        dialogController.contentOffset = self.view.frame.height / 2.0 - dialogController.estimatedHeight / 2.0 - 16
+        
+        dialogController.show(in: self)
+        
+    }
+    
 }

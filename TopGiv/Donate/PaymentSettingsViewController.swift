@@ -10,7 +10,7 @@ import UIKit
 import FirebaseDatabase
 import Alamofire
 
-class PaymentSettingsViewController: UIViewController {
+class PaymentSettingsViewController: UIViewController, UITextFieldDelegate {
 
     @IBOutlet weak var tf_Name: UITextField!
     @IBOutlet weak var bt_Save: UIButton!
@@ -57,6 +57,24 @@ class PaymentSettingsViewController: UIViewController {
         
         bt_Save.clipsToBounds = true
         
+        tf_CVV.delegate = self
+        
+        tf_CardA.delegate = self
+        
+        tf_CardB.delegate = self
+        
+        tf_CardC.delegate = self
+        
+        tf_CardD.delegate = self
+        
+    }
+    
+    @IBAction func onCVC(_ sender: Any) {
+        if (tf_CVV.text?.characters.count == 3) {
+            
+            tf_Email.becomeFirstResponder()
+            
+        }
     }
     
     @IBAction func onCardA(_ sender: Any) {
@@ -153,6 +171,31 @@ class PaymentSettingsViewController: UIViewController {
                 
                 print("Email address is valid")
                 
+                Alamofire.request("http://popnus.com/index.php/mobile/updateCardInfo?uid=\(self.appDelegate.userID)&card_number=\(self.tf_CardA.text!)-\(self.tf_CardB.text!)-\(self.tf_CardC.text!)-\(self.tf_CardD.text!)&card_name=\(self.tf_Name.text!)&cvc=\(self.tf_CVV.text!)").responseJSON { response in
+                    
+                    print("Request: \(String(describing: response.request))")   // original url request
+                    
+                    print("Response: \(String(describing: response.response))") // http url response
+                    
+                    print("Result: \(response.result)")                         // response serialization result
+                    
+                    if let json = response.result.value {
+                        
+                        print("JSON: \(json)") // serialized json response
+                    }
+                    
+                    if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
+                        
+                        print("Data: \(utf8Text)") // original server data as UTF8 string
+                        
+                    }
+                    
+                    self.navigationController?.popViewController(animated: true)
+                    
+//                    self.dismiss(animated: true, completion: nil)
+                    
+                }
+                
             } else {
                 
                 print("Email address is not valid")
@@ -161,33 +204,12 @@ class PaymentSettingsViewController: UIViewController {
                 
             }
             
-            Alamofire.request("http://popnus.com/index.php/mobile/updateCardInfo?uid=\(self.appDelegate.userID)&card_number=\(self.tf_CardA.text!)-\(self.tf_CardB.text!)-\(self.tf_CardC.text!)-\(self.tf_CardD.text!)&card_name=\(self.tf_Name.text!)&cvc=\(self.tf_CVV.text!)").responseJSON { response in
-                
-                print("Request: \(String(describing: response.request))")   // original url request
-                
-                print("Response: \(String(describing: response.response))") // http url response
-                
-                print("Result: \(response.result)")                         // response serialization result
-                
-                if let json = response.result.value {
-                    
-                    print("JSON: \(json)") // serialized json response
-                }
-                
-                if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
-                    
-                    print("Data: \(utf8Text)") // original server data as UTF8 string
-                    
-                }
-            }
-     
-            self.dismiss(animated: true, completion: nil)
-            
         }
         
     }
     
     func isValidEmailAddress(emailAddressString: String) -> Bool {
+        
         //This is for email validation
         
         var returnValue = true
@@ -222,7 +244,9 @@ class PaymentSettingsViewController: UIViewController {
     }
     
     func displayAlertMessage(messageToDisplay: String){
+        
         //To display alert message
+        
         let alertController = UIAlertController(title: "Alert", message: messageToDisplay, preferredStyle: .alert)
         
         let OKAction = UIAlertAction(title: "OK", style: .default) { (action:UIAlertAction!) in
@@ -236,6 +260,14 @@ class PaymentSettingsViewController: UIViewController {
         
         self.present(alertController, animated: true, completion:nil)
         
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        
+        let aSet = NSCharacterSet(charactersIn:"0123456789").inverted
+        let compSepByCharInSet = string.components(separatedBy: aSet)
+        let numberFiltered = compSepByCharInSet.joined(separator: "")
+        return string == numberFiltered
     }
 
 }

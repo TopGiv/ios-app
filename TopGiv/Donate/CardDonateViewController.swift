@@ -12,7 +12,7 @@ import Stripe
 import AFNetworking
 import Alamofire
 
-class CardDonateViewController: UIViewController {
+class CardDonateViewController: UIViewController, UITextFieldDelegate {
     
     var titlePassed = ""
     var amountPassed = 0
@@ -56,12 +56,6 @@ class CardDonateViewController: UIViewController {
     @IBAction func onDonate(_ sender: Any) {        //This is when Donate button is clicked
         
         //Today
-        let dateFormatter = DateFormatter()
-        
-        dateFormatter.dateStyle = DateFormatter.Style.medium
-        
-        dateFormatter.timeStyle = DateFormatter.Style.none
-        
         let today = String(Int(NSDate().timeIntervalSince1970))
         
         //This is validation for all the textfields
@@ -88,6 +82,61 @@ class CardDonateViewController: UIViewController {
                 
                 print("Email address is valid")
                 
+                let donationCategory = titlePassed.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)!
+                
+                URL = "http://popnus.com/index.php/mobile/addHistory?mail=\(String(describing: tf_Email.text!))&amount=\(amountPassed)&date=\(today)&kind=\(donationCategory)&token="
+                
+                //Stripe payment processing
+                // Initiate the card
+                let stripCard = STPCard()
+                
+                let stripCardParams = STPCardParams()
+                
+                // Split the expiration date to extract Month & Year
+                let expirationDate = self.tf_Date.text?.components(separatedBy: "/")
+                
+                let expMonth = monthConvert(mediumMonth: (expirationDate?[0])!)
+                
+                let expYear = UInt((expirationDate?[1])!)
+                
+                let number = "\(self.tf_CardA.text!)\(self.tf_CardB.text!)\(self.tf_CardC.text!)\(self.tf_CardD.text!)"       //Card number
+                
+                //Stripe card info
+                stripCard.number = number
+                
+                stripCard.cvc = self.tf_CVC.text!        //CVC
+                
+                stripCard.expMonth = UInt(expMonth)
+                
+                stripCard.expYear = expYear!
+                
+                stripCardParams.number = "\(self.tf_CardA.text!)\(self.tf_CardB.text!)\(self.tf_CardC.text!)\(self.tf_CardD.text!)"
+                
+                stripCardParams.cvc = tf_CVC.text
+                
+                stripCardParams.expYear = expYear!
+                
+                stripCardParams.expMonth = UInt(expMonth)
+                
+                if STPCardValidator.validationState(forCard: stripCardParams) == .valid {
+                    // the card is valid.
+                    STPAPIClient.shared().createToken(withCard: stripCard, completion: { (token, error) -> Void in
+                        
+                        if error != nil {
+                            print(error?.localizedDescription)
+                            return
+                        }
+                        
+                        print("This is the TOKEN: \(String(describing: token))")
+                        
+                        self.postStripeToken(token: token!)
+                    })
+                    
+                    displayThanksMessage(messageToDisplay: "Your are awecome!")
+                    
+                }
+                
+                
             } else {
                 
                 print("Email address is not valid")
@@ -96,60 +145,6 @@ class CardDonateViewController: UIViewController {
                 
             }
             
-            let donationCategory = titlePassed.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)!
-            
-            URL = "http://popnus.com/index.php/mobile/addHistory?mail=\(String(describing: tf_Email.text!))&amount=\(amountPassed)&date=\(today)&kind=\(donationCategory)&token="
-
-            //Stripe payment processing
-            // Initiate the card
-            let stripCard = STPCard()
-            
-            let stripCardParams = STPCardParams()
-            
-            // Split the expiration date to extract Month & Year
-            let expirationDate = self.tf_Date.text?.components(separatedBy: "/")
-            
-            let expMonth = monthConvert(mediumMonth: (expirationDate?[0])!)
-            
-            let expYear = UInt((expirationDate?[1])!)
-
-            let number = "\(self.tf_CardA.text!)\(self.tf_CardB.text!)\(self.tf_CardC.text!)\(self.tf_CardD.text!)"       //Card number
-
-            //Stripe card info
-            stripCard.number = number
-            
-            stripCard.cvc = self.tf_CVC.text!        //CVC
-            
-            stripCard.expMonth = UInt(expMonth)
-            
-            stripCard.expYear = expYear!
-            
-            stripCardParams.number = "\(self.tf_CardA.text!)\(self.tf_CardB.text!)\(self.tf_CardC.text!)\(self.tf_CardD.text!)"
-            
-            stripCardParams.cvc = tf_CVC.text
-            
-            stripCardParams.expYear = expYear!
-            
-            stripCardParams.expMonth = UInt(expMonth)
-            
-            if STPCardValidator.validationState(forCard: stripCardParams) == .valid {
-                // the card is valid.
-                STPAPIClient.shared().createToken(withCard: stripCard, completion: { (token, error) -> Void in
-                    
-                    if error != nil {
-                        print(error?.localizedDescription)
-                        return
-                    }
-                    
-                    print("This is the TOKEN: \(token)")
-                    
-                    self.postStripeToken(token: token!)
-                })
-               
-            }
-            
-            displayThanksMessage(messageToDisplay: "Your donation is complete\nWe are so grateful to you for your gift - thanks!")
-        
         }
         
     }
@@ -194,6 +189,16 @@ class CardDonateViewController: UIViewController {
         
         bt_Donate.setTitle("Donate $\(amountPassed)", for: .normal)
         
+        tf_CVC.delegate = self
+        
+        tf_CardA.delegate = self
+        
+        tf_CardB.delegate = self
+        
+        tf_CardC.delegate = self
+        
+        tf_CardD.delegate = self
+        
     }
     
     @IBAction func onCardA(_ sender: Any) {
@@ -236,6 +241,15 @@ class CardDonateViewController: UIViewController {
         
     }
     
+    @IBAction func onCVC(_ sender: Any) {
+        
+        if (tf_CVC.text?.characters.count == 3) {
+            
+            tf_Email.becomeFirstResponder()
+            
+        }
+        
+    }
     
     
     func isValidEmailAddress(emailAddressString: String) -> Bool {
@@ -272,9 +286,9 @@ class CardDonateViewController: UIViewController {
         
     }
     
-    func displayAlertMessage(messageToDisplay: String)
-    {
+    func displayAlertMessage(messageToDisplay: String) {
         //This is for displaying alert messages
+        
         let alertController = UIAlertController(title: "Alert", message: messageToDisplay, preferredStyle: .alert)
         
         let OKAction = UIAlertAction(title: "OK", style: .default) { (action:UIAlertAction!) in
@@ -290,15 +304,49 @@ class CardDonateViewController: UIViewController {
         
     }
     
-    func displayThanksMessage(messageToDisplay: String)
-    {
+    func displayThanksMessage(messageToDisplay: String) {
         //This is for displaying thankful messages when donation is done.
+        
+        let loggedEmail: String = self.tf_Email.text!
+        
+        Alamofire.request("http://popnus.com/index.php/mobile/signUp?mail=\(loggedEmail)").responseJSON { response in
+            
+            print("Request: \(String(describing: response.request))")   // original url request
+            
+            print("Response: \(String(describing: response.response))") // http url response
+            
+            print("Result: \(response.result)")                         // response serialization result
+            
+            if let json = response.result.value as? [String: Any] {
+                
+                self.appDelegate.userID = json["uid"] as! String
+                
+                print("JSON: \(self.appDelegate.userID)") // serialized json response
+                
+            }
+            
+            if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
+                
+                print("Data: \(utf8Text)") // original server data as UTF8 string
+                
+            }
+            
+        }
+
+        
         let alertController = UIAlertController(title: "Thank You", message: messageToDisplay, preferredStyle: .alert)
         
         let OKAction = UIAlertAction(title: "OK", style: .default) { (action:UIAlertAction!) in
             
             // Code in this block will trigger when OK button tapped.
-            self.navigationController?.popToRootViewController(animated: true)
+//            self.navigationController?.popToRootViewController(animated: true)
+            let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+            
+            let vc = storyBoard.instantiateViewController(withIdentifier: "DonationHistoryViewController") as! DonationHistoryViewController
+            
+            vc.emailPassed = self.tf_Email.text!
+            
+            self.navigationController?.pushViewController(vc, animated: true)
             
             print("Ok button tapped");
             
@@ -310,8 +358,7 @@ class CardDonateViewController: UIViewController {
         
     }
     
-    func monthConvert(mediumMonth: String) -> Int
-    {
+    func monthConvert(mediumMonth: String) -> Int {
         //This is for expiratoin date
         
         switch mediumMonth {
@@ -401,6 +448,14 @@ class CardDonateViewController: UIViewController {
             
         }
         
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        
+        let aSet = NSCharacterSet(charactersIn:"0123456789").inverted
+        let compSepByCharInSet = string.components(separatedBy: aSet)
+        let numberFiltered = compSepByCharInSet.joined(separator: "")
+        return string == numberFiltered
     }
   
 }

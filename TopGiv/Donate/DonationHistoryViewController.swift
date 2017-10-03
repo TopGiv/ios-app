@@ -8,7 +8,6 @@
 
 import UIKit
 import FirebaseDatabase
-import FirebaseAuth
 import MGSwipeTableCell
 import SBPickerSelector
 import MessageUI
@@ -19,6 +18,8 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
     @IBOutlet weak var ai_Loading: UIActivityIndicatorView!
     @IBOutlet weak var bt_Emailreceipts: UIButton!
     @IBOutlet var tbl_History: UITableView!
+    @IBOutlet weak var bt_Rate: UIButton!
+    
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     var userDict:[NSDictionary] = []
     var emailPassed = ""
@@ -90,7 +91,6 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
         
         cell.lb_Date.text = unixtoDate(timeResult: Double((object["date"]! as? String)!)!)
         
-        
         cell.lb_Amount.text = object["amount"]! as? String
         
         cell.backgroundColor = UIColor.clear
@@ -126,9 +126,23 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
             
             if let json = response.result.value as? Dictionary<String, AnyObject> {
                 
-                print("&&&\(json)")
+                print("&&& This is donation data:\n\(json)")
                 
                 if let data = json["data"] as? Array<AnyObject> {
+                    
+                    if data.count == 0 {
+                        
+                        let post2 = UIAlertController(title: "No History for You", message: "You have not donated any amount of money yet.", preferredStyle: .alert)
+                        
+                        post2.addAction(UIAlertAction(title: "OK", style: .default, handler: { (_) in
+                            
+                            self.navigationController?.popViewController(animated: true)
+                            
+                        }))
+                        
+                        self.present(post2, animated: true, completion: nil)
+                                                
+                    }
                     
                     var dataCell: NSDictionary = [:]
                     
@@ -143,7 +157,7 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
                                 if let dataDate = myEntry["date"] as? String {
                                     
                                     dataCell = ["category": dataCategory , "date": dataDate , "amount": "\(dataAmount)$"]
-                                        
+                                    
                                 }
                             }
                         }
@@ -172,9 +186,7 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
         
         for item in userDict {
             
-            let obj = item as NSDictionary
-            
-            let date:String! = item.value(forKey: "date") as? String
+            let date:String! = unixtoDate(timeResult: Double((item.value(forKey: "date") as? String)!)!)
             
             let category:String! = item.value(forKey: "category") as? String
             
@@ -182,16 +194,18 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
             
             let dateDiv = date.components(separatedBy: " ")
             
-            if dateSelected == dateDiv[2] {
+            if "\(dateSelected)," == dateDiv[2] {
                 
-                receiptText = receiptText + "\(category) \(amount) \(date)\n"
+                receiptText = receiptText + "\(category!) \(amount!) \(date!)\n"
                 
-                print(dateDiv[2])
+                print("Only YEAR:\n\(dateDiv[2])\n\(receiptText)")
                 
             }
             
             else {
-                print(dateDiv)
+                
+                print("Date:\n\(dateDiv)")
+                
             }
 
         }
@@ -206,7 +220,7 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
         
         vc.amountPassed = ((self.userDict[index])["amount"]! as? String)!
         
-        vc.datePassed = ((self.userDict[index])["date"]! as? String)!
+        vc.datePassed = unixtoDate(timeResult: Double(((self.userDict[index])["date"]! as? String)!)!)
         
         vc.categoryPassed = ((self.userDict[index])["category"]! as? String)!
         
@@ -245,15 +259,19 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
     
     func interfacelayout() {
         
-        tbl_History.backgroundView = UIImageView(image: UIImage(named: "hisback.jpg"))
+//        tbl_History.backgroundView = UIImageView(image: UIImage(named: "hisback.jpg"))
         
         tbl_History.delegate = self
         
         tbl_History.dataSource = self
         
-        bt_Emailreceipts.layer.cornerRadius = 20
+        bt_Emailreceipts.layer.cornerRadius = 10
         
         bt_Emailreceipts.clipsToBounds = true
+        
+        bt_Rate.layer.cornerRadius = 10
+        
+        bt_Rate.clipsToBounds = true
         
         self.navigationController?.navigationItem.title = "Donation History"
         
@@ -276,6 +294,8 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
         receiptData()
         
         displayConfirm()
+        
+        sendEmail()
         
         print(dateSelected)
 
@@ -305,32 +325,80 @@ class DonationHistoryViewController: UIViewController, UITableViewDataSource, UI
     
     func sendEmail() {
         
-        let composeVC = MFMailComposeViewController()
-        
-        composeVC.mailComposeDelegate = self
-        
-        // Configure the fields of the interface.
-        composeVC.setToRecipients([emailPassed])
-        
-        composeVC.setSubject("All the receipts in \(dateSelected)")
-        
-        composeVC.setMessageBody("Thanks for your kind heart!\n\(receiptText)", isHTML: false)
-        
-        // Present the view controller modally.
-        self.present(composeVC, animated: true, completion: nil)
+        print("http://popnus.com/index.php/mobile/receipt?mail=mobiledeveloper112075@gmail.com&message=\(receiptText)")
+        let receiptString = receiptText.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)!
+        Alamofire.request("http://popnus.com/index.php/mobile/receipt?mail=\(emailPassed)&message=\(receiptString)").responseJSON { response in
+            print("Request: \(String(describing: response.request))")   // original url request
+            print("Response: \(String(describing: response.response))") // http url response
+            print("Result: \(response.result)")                         // response serialization result
+
+        }
         
     }
     
-    func mailComposeController(controller: MFMailComposeViewController,
-                               didFinishWithResult result: MFMailComposeResult, error: NSError?) {
+    func mailComposeController(_ controller: MFMailComposeViewController,
+                               didFinishWith result: MFMailComposeResult, error: Error?) {
 
         // Dismiss the mail compose view controller.
         controller.dismiss(animated: true, completion: nil)
         
     }
     
-    func unixtoDate(timeResult: Double) -> String {
+    
+    
+    @IBAction func onRate(_ sender: Any) {
+        //This is for Rating
         
+        //configure
+        SARate.sharedInstance().daysUntilPrompt = 5
+        
+        SARate.sharedInstance().usesUntilPrompt = 5
+        
+        SARate.sharedInstance().remindPeriod = 30
+        
+        SARate.sharedInstance().promptForNewVersionIfUserRated = true
+        
+        //enable preview mode
+        SARate.sharedInstance().previewMode = true
+        
+        SARate.sharedInstance().email = "mobiledeveloper112075@gmail.com"
+        
+        // 4 and 5 stars
+        SARate.sharedInstance().minAppStoreRaiting = 4
+        
+        //        SARate.sharedInstance().emailSubject = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as! String
+        
+        SARate.sharedInstance().emailText = "Disadvantages: "
+        
+        SARate.sharedInstance().headerLabelText = "Like app?"
+        
+        SARate.sharedInstance().descriptionLabelText = "Touch the star to rate."
+        
+        SARate.sharedInstance().rateButtonLabelText = "Rate"
+        
+        SARate.sharedInstance().cancelButtonLabelText = "Not Now"
+        
+        SARate.sharedInstance().setRaitingAlertTitle = "Rate"
+        
+        SARate.sharedInstance().setRaitingAlertMessage = "Touch the star to rate."
+        
+        SARate.sharedInstance().appstoreRaitingAlertTitle = "Write a review on the AppStore"
+        
+        SARate.sharedInstance().appstoreRaitingAlertMessage = "Would you mind taking a moment to rate it on the AppStore? It won’t take more than a minute. Thanks for your support!"
+        
+        SARate.sharedInstance().appstoreRaitingCancel = "Cancel"
+        
+        SARate.sharedInstance().appstoreRaitingButton = "Rate It Now"
+        
+        SARate.sharedInstance().disadvantagesAlertTitle = "Disadvantages"
+        
+        SARate.sharedInstance().disadvantagesAlertMessage = "Please specify the deficiencies in the application. We will try to fix it!"
+        
+    }
+    
+    func unixtoDate(timeResult: Double) -> String {
+        //This is for converting the received date to the ordinary one
+
         let date = NSDate(timeIntervalSince1970: timeResult)
         
         let dateFormatter = DateFormatter()
